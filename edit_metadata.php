@@ -38,9 +38,8 @@ if ( isset( $_POST['create'] ) )
   // We have to check if all the fields have data before going on.
   $query  = "SELECT institution, dbname, dbuser, dbpasswd, dbhost, " .
             "admin_fname, admin_lname, admin_email, admin_pw, " .
-            "lab_name, lab_building, lab_room, " .
+            "lab_name, lab_contact, " .
             "instrument_name, instrument_serial, " .
-            "operator_fname, operator_lname, operator_email, operator_pw, " .
             "status " .
             "FROM metadata " .
             "WHERE metadataID = $metadataID ";
@@ -120,8 +119,6 @@ function do_update()
   $dbhost       = trim(substr(addslashes(htmlentities($_POST['dbhost'])), 0,30));
   $admin_pw1    = trim(substr(addslashes(htmlentities($_POST['admin_pw1'])), 0,80));
   $admin_pw2    = trim(substr(addslashes(htmlentities($_POST['admin_pw2'])), 0,80));
-  $operator_pw1 = trim(substr(addslashes(htmlentities($_POST['operator_pw1'])), 0,80));
-  $operator_pw2 = trim(substr(addslashes(htmlentities($_POST['operator_pw2'])), 0,80));
   $status       =                                     $_POST['status'];
 
   if ( empty( $dbname ) )
@@ -139,15 +136,10 @@ function do_update()
   if ( $admin_pw1 != $admin_pw2 )
     $message .= "--administrator passwords do not match.<br />";
 
-  if ( $operator_pw1 != $operator_pw2 )
-    $message .= "--operator passwords do not match.<br />";
-
   if ( empty( $message ) )
   {
     $admin_pw_text    = ( empty( $admin_pw1 ) ) 
                       ? "" : "admin_pw = MD5('$admin_pw1'), ";
-    $operator_pw_text = ( empty( $operator_pw1 ) ) 
-                      ? "" : "operator_pw = MD5('$operator_pw1'), ";
 
     $query = "UPDATE metadata " .
              "SET institution  = '$institution', " .
@@ -160,14 +152,9 @@ function do_update()
              "admin_email  = '$admin_email', " .
              $admin_pw_text .
              "lab_name  = '$lab_name', " .
-             "lab_building  = '$lab_building', " .
-             "lab_room  = '$lab_room', " .
+             "lab_contact  = '$lab_contact', " .
              "instrument_name  = '$instrument_name', " .
              "instrument_serial  = '$instrument_serial', " .
-             "operator_fname  = '$operator_fname', " .
-             "operator_lname  = '$operator_lname', " .
-             "operator_email  = '$operator_email', " .
-             $operator_pw_text .
              "status  = '$status', " .
              "updateTime = NOW() " .
              "WHERE metadataID = $metadataID ";
@@ -197,9 +184,8 @@ function display_record()
 
   $query  = "SELECT institution, dbname, dbuser, dbpasswd, dbhost, " .
             "admin_fname, admin_lname, admin_email, " .
-            "lab_name, lab_building, lab_room, " .
+            "lab_name, lab_contact, " .
             "instrument_name, instrument_serial, " .
-            "operator_fname, operator_lname, operator_email, " .
             "status " .
             "FROM metadata " .
             "WHERE metadataID = $metadataID ";
@@ -248,26 +234,16 @@ echo<<<HTML
           <td>$admin_lname</td></tr>
       <tr><th>Email:</th>
           <td>$admin_email</td></tr>
-      <tr><th colspan='2'>Information about the Lab</th></tr>
-      <tr><th>The name of the lab:</th>
+      <tr><th colspan='2'>Information about the Facility</th></tr>
+      <tr><th>The Facility Name:</th>
           <td>$lab_name</td></tr>
-      <tr><th>The building where the lab is located:</th>
-          <td>$lab_building</td></tr>
-      <tr><th>The room where the lab is located:</th>
-          <td>$lab_room</td></tr>
+      <tr><th>Facility Contact Information:</th>
+          <td>$lab_contact</td></tr>
       <tr><th colspan='2'>Information about the AUC Instrument</th></tr>
       <tr><th>The name of the AUC Instrument:</th>
           <td>$instrument_name</td></tr>
       <tr><th>The Instrument Serial #:</th>
           <td>$instrument_serial</td></tr>
-      <tr><th colspan='2'>Information about the Instrument Operator</th></tr>
-      <tr><th>First Name:</th>
-          <td>$operator_fname</td></tr>
-      <tr><th>Last Name:</th>
-          <td>$operator_lname</td></tr>
-      <tr><th>Email:</th>
-          <td>$operator_email</td></tr>
-      <tr><th colspan='2'>Information about the Channel</th></tr>
       <tr><th>Status:</th>
           <td>$status</td></tr>
     </tbody>
@@ -339,9 +315,8 @@ function edit_record()
 
   $query  = "SELECT institution, dbname, dbuser, dbpasswd, dbhost, " .
             "admin_fname, admin_lname, admin_email, " .
-            "lab_name, lab_building, lab_room, " .
+            "lab_name, lab_contact, " .
             "instrument_name, instrument_serial, " .
-            "operator_fname, operator_lname, operator_email, " .
             "status " .
             "FROM metadata " .
             "WHERE metadataID = $metadataID ";
@@ -360,13 +335,9 @@ function edit_record()
   $admin_lname         = html_entity_decode( stripslashes( $row['admin_lname'] ) );
   $admin_email         = html_entity_decode( stripslashes( $row['admin_email'] ) );
   $lab_name            = html_entity_decode( stripslashes( $row['lab_name'] ) );
-  $lab_building        = html_entity_decode( stripslashes( $row['lab_building'] ) );
-  $lab_room            = html_entity_decode( stripslashes( $row['lab_room'] ) );
+  $lab_contact         = html_entity_decode( stripslashes( $row['lab_contact'] ) );
   $instrument_name     = html_entity_decode( stripslashes( $row['instrument_name'] ) );
   $instrument_serial   = html_entity_decode( stripslashes( $row['instrument_serial'] ) );
-  $operator_fname      = html_entity_decode( stripslashes( $row['operator_fname'] ) );
-  $operator_lname      = html_entity_decode( stripslashes( $row['operator_lname'] ) );
-  $operator_email      = html_entity_decode( stripslashes( $row['operator_email'] ) );
   $status              =                                   $row['status'];
 
 
@@ -419,15 +390,12 @@ echo<<<HTML
         <td><input type='password' name='admin_pw2' size='40'
                    maxlength='80' /></td></tr>
     <tr><th colspan='2'>Information about the Lab</th></tr>
-    <tr><th>The name of the lab:</th>
-        <td><textarea name='lab_name' rows='6' cols='65' 
-                      wrap='virtual'>$lab_name</textarea></td></tr>
-    <tr><th>The building where the lab is located:</th>
-        <td><textarea name='lab_building' rows='6' cols='65' 
-                      wrap='virtual'>$lab_building</textarea></td></tr>
-    <tr><th>The room where the lab is located:</th>
-        <td><textarea name='lab_room' rows='6' cols='65' 
-                      wrap='virtual'>$lab_room</textarea></td></tr>
+    <tr><th>Facility Name:</th>
+        <td><input type='text' name='lab_name' size='40' 
+                   maxlength='80' value='$lab_name' /></td></tr>
+    <tr><th>Facility Contact Information:</th>
+        <td><textarea name='lab_contact' rows='6' cols='65' 
+                      wrap='virtual'>$lab_contact</textarea></td></tr>
     <tr><th colspan='2'>Information about the AUC Instrument</th></tr>
     <tr><th>The name of the AUC Instrument:</th>
         <td><textarea name='instrument_name' rows='6' cols='65' 
@@ -435,23 +403,6 @@ echo<<<HTML
     <tr><th>The Instrument Serial #:</th>
         <td><textarea name='instrument_serial' rows='6' cols='65' 
                       wrap='virtual'>$instrument_serial</textarea></td></tr>
-    <tr><th colspan='2'>Information about the Instrument Operator</th></tr>
-    <tr><th>First Name:</th>
-        <td><input type='text' name='operator_fname' size='40'
-                   maxlength='30' value='$operator_fname' /></td></tr>
-    <tr><th>Last Name:</th>
-        <td><input type='text' name='operator_lname' size='40'
-                   maxlength='30' value='$operator_lname' /></td></tr>
-    <tr><th>Email:</th>
-        <td><input type='text' name='operator_email' size='40'
-                   maxlength='63' value='$operator_email' /></td></tr>
-    <tr><th>Password (for no change leave blank):</th>
-        <td><input type='password' name='operator_pw1' size='40'
-                   maxlength='80' /></td></tr>
-    <tr><th>Password again (must match):</th>
-        <td><input type='password' name='operator_pw2' size='40'
-                   maxlength='80' /></td></tr>
-    <tr><th colspan='2'>Information about the Channel</th></tr>
     <tr><th>Status:</th>
         <td>$status_text</td></tr>
 

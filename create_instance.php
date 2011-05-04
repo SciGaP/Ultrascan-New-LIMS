@@ -83,7 +83,8 @@ function do_step1()
     return;
   }
 
-  $query  = "SELECT institution, dbname, dbuser, dbpasswd, dbhost " .
+  $query  = "SELECT institution, dbname, dbuser, dbpasswd, dbhost, " .
+            "admin_email, admin_pw " .
             "FROM metadata " .
             "WHERE metadataID = $metadataID ";
   $result = mysql_query($query) 
@@ -93,23 +94,77 @@ function do_step1()
         $new_dbname,
         $new_dbuser,
         $new_dbpasswd,
-        $new_dbhost )    = mysql_fetch_array( $result );
+        $new_dbhost,
+        $admin_email,
+        $admin_pw )   = mysql_fetch_array( $result );
+
+  $new_secureuser = substr( $new_dbname, 0, 12 ) . '_sec';
+  $new_securepw   = makeRandomPassword();
+  $new_scriptfile = $new_dbname . '.sh';
+  $new_grantsfile = $new_dbname . '_grants.sql';
+  $new_hintsfile  = $new_dbname . '.txt';
+
+  $script = <<<TEXT
+#!/bin/bash
+# A script to create the $institution database
+
+echo "Use the root password in all cases here";
+
+mysqladmin -u root -p CREATE $new_dbname
+mysql -u root -p $new_dbname < $new_grantsfile
+mysql -u root -p $new_dbname < us3.sql
+mysql -u root -p $new_dbname < us3_procedures.sql
+
+TEXT;
+
+  $grants = <<<TEXT
+--
+-- $new_grantsfile
+--
+-- Establishes the grants needed for the $institution database
+--
+
+GRANT ALL ON $new_dbname.* TO $new_dbuser@localhost IDENTIFIED BY '$new_dbpasswd';
+GRANT ALL ON $new_dbname.* TO $new_dbuser@'%' IDENTIFIED BY '$new_dbpasswd';
+GRANT EXECUTE ON $new_dbname.* TO $new_secureuser@'%' IDENTIFIED BY '$new_securepw' REQUIRE SSL;
+
+TEXT;
+
+  $hints = <<<TEXT
+Database Setup Information
+
+DB Connection Name: $new_secureuser
+DB Password:        $new_securepw
+Database Name:      $new_dbname
+Host Address:       $new_dbhost
+
+
+Admin Investigator Setup Information
+Investigator Email: $admin_email
+Investigator Password: _______________________
+
+TEXT;
+
+  global $data_dir;
+  file_put_contents( $data_dir . $new_scriptfile, $script );
+  file_put_contents( $data_dir . $new_hintsfile,  $hints  );
+  file_put_contents( $data_dir . $new_grantsfile, $grants );
+  chmod( $data_dir . $new_scriptfile, 0755 );
 
   echo <<<HTML
   <p>Step 1</p>
 
-  <ul><li>Create database for $institution:<br />
-          CREATE DATABASE $new_dbname;</li>
-      <li>Enable the LIMS user<br />
-          GRANT ALL ON $new_dbname.* TO $new_dbuser@localhost IDENTIFIED BY '$new_dbpasswd';</li>
-          GRANT ALL ON $new_dbname.* TO $new_dbuser@'%' IDENTIFIED BY '$new_dbpasswd';</li>
-          GRANT EXECUTE ON $new_dbname.* TO us3secure@'%' REQUIRE SSL;
-      <li>Load the database definition:<br />
-          mysql -u root -p $new_dbname &lt; us3.sql</li>
-      <li>Load the stored procedures:<br />
-          mysql -u root -p $new_dbname &lt; us3_procedures.sql</li>
-      <li>Click Next--&gt;</li>
+  <p>Creating a database for $institution includes the following steps:</p>
+  <ul><li>Create the database</li>
+      <li>Enable the LIMS user</li>
+      <li>Load the database definition</li>
+      <li>Load the stored procedures</li>
   </ul>
+
+  <p>A script file called $new_scriptfile has been created for you that does 
+     all of this. Move the shell script and the sql script to a directory that
+     contains the UltraScan III sql scripts and execute it. You will need to 
+     use the root password for mysql each time a password is requested. Then click Next--&gt;</p>
 
   <form action={$_SERVER['PHP_SELF']} method='post' >
     <input type='submit' name='step_2' value='Next--&gt;' />
@@ -122,6 +177,8 @@ HTML;
 function do_step2()
 {
   $metadataID = $_POST['metadataID'];
+
+  setup_DB( $metadataID );
 
   $query  = "SELECT institution, dbname, dbuser, dbpasswd, dbhost " .
             "FROM metadata " .
@@ -137,50 +194,71 @@ function do_step2()
         $new_dbpasswd,
         $new_dbhost )    = mysql_fetch_array( $result );
 
+  global $full_path;
+  $makeconfigfile = $full_path . 'makeconfig.php';
+ 
+  $setupLIMS = <<<TEXT
+#!/bin/bash
+# A script to create the $institution LIMS
+
+DIR=\$(pwd)
+htmldir="/srv/www/htdocs"
+
+echo "Use the zollarsd password here";
+svn co svn+ssh://zollarsd@bcf.uthscsa.edu/us3_lims/trunk \$htmldir/$new_dbname
+mkdir \$htmldir/$new_dbname/data
+sudo chgrp apache \$htmldir/$new_dbname/data
+sudo chmod g+w \$htmldir/$new_dbname/data
+
+#Now make the config.php file
+php $makeconfigfile $new_dbname
+vi \$htmldir/$new_dbname/config.php
+TEXT;
+
+  global $data_dir;
+  $new_LIMSfile = $new_dbname . 'LIMS.sh';
+  file_put_contents( $data_dir . $new_LIMSfile, $setupLIMS );
+  chmod( $data_dir . $new_LIMSfile, 0755 );
+
   echo <<<HTML
   <p>Step 2</p>
 
-  <ul><li>Check out LIMS code for $institution:<br />
-          svn co svn+ssh://username@bcf.uthscsa.edu/us3_lims/trunk $new_dbname</li>
-      <li>Create the LIMS configuration file:<br />
-          cp config.php.template config.php</li>
-      <li>Create the LIMS data directory<br />
-          mkdir data<br />
-          chmod 0777 data</li>
-      <li>Update configuration with this information:<br />
-          <table cellspacing='0' cellpadding='3' style='text-align:left;'>
-            <tr><th>Database name:</th><td>$new_dbname</td></tr>
-            <tr><th>Database user:</th><td>$new_dbuser</td></tr>
-            <tr><th>DB User Password:</th><td>$new_dbpasswd</td></tr>
-            <tr><th>Server name:</th><td>$new_dbhost</td></tr>
-            <tr><th>Global DB User:</th><td>gfac</td></tr>
-            <tr><th>Global DB password:</th><td>backend</td></tr>
-            <tr><th>Global DB name:</th><td>gfac</td></tr>
-            <tr><th>Global DB host:</th><td>ultrascan3.uthscsa.edu</td></tr>
-          </table>
-          Replace all instances of &ldquo;lims3&rdquo; with $new_dbname</li>
-      <li>Click Next--&gt;</li>
+  <p>Setting up the LIMS code involves the following steps:</p>
+
+  <ul><li>Check out LIMS code for $institution</li>
+      <li>Create the LIMS data directory</li>
+      <li>Create the config.php file</li>
   </ul>
 
-  <form action={$_SERVER['PHP_SELF']} method='post' >
-    <input type='submit' name='step_3' value='Next--&gt;' />
-    <input type='hidden' name='metadataID' value='$metadataID' />
-  </form>
+  <p>A script file called $new_LIMSfile has been created for you that does 
+     all of this. Execute the script. At the end of the process the script will
+     present the generated config.php for you to edit. Double check the file 
+     using this information:</p>
+
+  <table cellspacing='0' cellpadding='3' style='text-align:left;'>
+    <tr><th>Database name:</th><td>$new_dbname</td></tr>
+    <tr><th>Database user:</th><td>$new_dbuser</td></tr>
+    <tr><th>DB User Password:</th><td>$new_dbpasswd</td></tr>
+    <tr><th>Server name:</th><td>$new_dbhost</td></tr>
+    <tr><th>Global DB User:</th><td>gfac</td></tr>
+    <tr><th>Global DB password:</th><td>backend</td></tr>
+    <tr><th>Global DB name:</th><td>gfac</td></tr>
+    <tr><th>Global DB host:</th><td>ultrascan3.uthscsa.edu</td></tr>
+  </table>
+
+  <p>The database instance has been created.</p>
 
 HTML;
 }
 
-function do_step3()
+function setup_DB( $metadataID )
 {
-  $metadataID = $_POST['metadataID'];
-
   // Let's just get everything we're going to need
   $query  = "SELECT institution, dbname AS new_dbname, dbuser AS new_dbuser, " .
             "dbpasswd AS new_dbpasswd, dbhost AS new_dbhost, " .
             "admin_fname, admin_lname, admin_email, admin_pw, " .
-            "lab_name, lab_building, lab_room, " .
+            "lab_name, lab_contact, " .
             "instrument_name, instrument_serial, " .
-            "operator_fname, operator_lname, operator_email, operator_pw, " .
             "status " .
             "FROM metadata " .
             "WHERE metadataID = $metadataID ";
@@ -217,27 +295,11 @@ function do_step3()
         or die("Query failed : $query<br />\n" . mysql_error());
   $admin_id = mysql_insert_id();
 
-  // Operator record
-  $guid = uuid();
-  $query  = "INSERT INTO people SET " .
-            "personGUID = '$guid', " .
-            "fname = '$operator_fname', " .
-            "lname = '$operator_lname', " .
-            "email = '$operator_email', " .
-            "password = '$operator_pw', " .
-            "organization = '$institution', " .
-            "activated = true, " .
-            "userlevel = 3 ";
-  mysql_query($query) 
-        or die("Query failed : $query<br />\n" . mysql_error());
-  $operator_id = mysql_insert_id();
-
   // The institution's lab
   // One is already created in the sql scripts
   $query  = "UPDATE lab SET " .
             "name = '$lab_name', " .
-            "building = '$lab_building', " .
-            "room = '$lab_room', " .
+            "building = '$lab_contact', " .
             "dateUpdated = NOW() " .
             "WHERE labID = 1 ";
   mysql_query($query) 
@@ -261,45 +323,39 @@ function do_step3()
   mysql_query($query) 
         or die("Query failed : $query<br />\n" . mysql_error());
 
-  $query  = "INSERT INTO permits SET " .
-            "personID = $operator_id, " .
-            "instrumentID = $instrument_id ";
-  mysql_query($query) 
-        or die("Query failed : $query<br />\n" . mysql_error());
-
   // Create a couple of abstract channels
   $query  = "INSERT INTO abstractChannel SET " .
-            "abstractChannelID   = 1",
-            "channelType         = 'sample' ",
-            "channelShape        = 'sector' ",
-            "abstractChannelGUID = 'fa703797-caff-1c44-3d0d-4f89149c0fe0' ",
-            "name                = 'UTHSCSA Abstract Channel #1' ",
-            "number              = 101 ",
-            "radialBegin         = 0.0 ",
-            "radialEnd           = 0.0 ",
-            "degreesWide         = 0.0 ",
-            "degreesOffset       = 0.0 ",
-            "radialBandTop       = 0.0 ",
-            "radialBandBottom    = 0.0 ",
-            "radialMeniscusPos   = 0.0 ",
+            "abstractChannelID   = 1, " .
+            "channelType         = 'sample', " .
+            "channelShape        = 'sector', " .
+            "abstractChannelGUID = 'fa703797-caff-1c44-3d0d-4f89149c0fe0', " .
+            "name                = 'UTHSCSA Abstract Channel #1', " .
+            "number              = 101, " .
+            "radialBegin         = 0.0, " .
+            "radialEnd           = 0.0, " .
+            "degreesWide         = 0.0, " .
+            "degreesOffset       = 0.0, " .
+            "radialBandTop       = 0.0, " .
+            "radialBandBottom    = 0.0, " .
+            "radialMeniscusPos   = 0.0, " .
             "dateUpdated         = NOW()";
   mysql_query($query) 
         or die("Query failed : $query<br />\n" . mysql_error());
 
   $query  = "INSERT INTO abstractChannel SET " .
-            "abstractChannelID   = 2",
-            "channelType         = 'sample' ",
-            "channelShape        = 'sector' ",
-            "abstractChannelGUID = 'dfb2aa83-a0c1-b724-59d4-4ddbd1e41cc2' ",
-            "name                = 'UTHSCSA Abstract Channel #2' ",
-            "number              = 102 ",
-            "radialBegin         = 0.0 ",
-            "radialEnd           = 0.0 ",
-            "degreesWide         = 0.0 ",
-            "degreesOffset       = 0.0 ",
-            "radialBandTop       = 0.0 ",
-            "radialBandBottom    = 0.0 ",
-            "radialMeniscusPos   = 0.0 ",
+            "abstractChannelID   = 2, " .
+            "channelType         = 'sample', " .
+            "channelShape        = 'sector', " .
+            "abstractChannelGUID = 'dfb2aa83-a0c1-b724-59d4-4ddbd1e41cc2', " .
+            "name                = 'UTHSCSA Abstract Channel #2', " .
+            "number              = 102, " .
+            "radialBegin         = 0.0, " .
+            "radialEnd           = 0.0, " .
+            "degreesWide         = 0.0, " .
+            "degreesOffset       = 0.0, " .
+            "radialBandTop       = 0.0, " .
+            "radialBandBottom    = 0.0, " .
+            "radialMeniscusPos   = 0.0, " .
             "dateUpdated         = NOW()";
   mysql_query($query) 
         or die("Query failed : $query<br />\n" . mysql_error());
@@ -335,8 +391,6 @@ function do_step3()
             "WHERE metadataID = $metadataID ";
   mysql_query($query) 
         or die("Query failed : $query<br />\n" . mysql_error());
-
-  echo "<p>The database instance has been created.</p>\n";
 
 }
 

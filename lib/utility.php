@@ -12,14 +12,14 @@ function emailsyntax_is_valid($email)
 
   list($local, $domain) = explode("@", $email);
 
-  $pattern_local  = '^([0-9a-z]*([-|_]?[0-9a-z]+)*)' .
-                    '(([-|_]?)\.([-|_]?)[0-9a-z]*([-|_]?[0-9a-z]+)+)*([-|_]?)$';
+  $pattern_local  = '/^([0-9a-zA-Z]*([-|_]?[0-9a-zA-Z]+)*)' .
+                    '(([-|_]?)\.([-|_]?)[0-9a-zA-Z]*([-|_]?[0-9a-zA-Z]+)+)*([-|_]?)$/';
 
-  $pattern_domain = '^([0-9a-z]+([-]?[0-9a-z]+)*)' .
-                    '(([-]?)\.([-]?)[0-9a-z]*([-]?[0-9a-z]+)+)*\.[a-z]{2,4}$';
+  $pattern_domain = '/^([0-9a-zA-Z]+([-]?[0-9a-zA-Z]+)*)' .
+                    '(([-]?)\.([-]?)[0-9a-zA-Z]*([-]?[0-9a-zA-Z]+)+)*\.[a-z]{2,4}$/';
 
-  $match_local  = eregi($pattern_local, $local);
-  $match_domain = eregi($pattern_domain, $domain);
+  $match_local  = preg_match($pattern_local, $local);
+  $match_domain = preg_match($pattern_domain, $domain);
 
   if ( $match_local && $match_domain )
   {
