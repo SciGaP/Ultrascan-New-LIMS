@@ -98,6 +98,9 @@ if ( isset( $_SESSION['message'] ) )
 if ( isset($_POST['edit']) || isset($_GET['edit']) )
   edit_record();
 
+else if ( isset($_POST['login_info']) )
+  login_info();
+
 else
   display_record();
 
@@ -139,7 +142,7 @@ function do_update()
   if ( empty( $message ) )
   {
     $admin_pw_text    = ( empty( $admin_pw1 ) ) 
-                      ? "" : "admin_pw = MD5('$admin_pw1'), ";
+                      ? "" : "admin_pw = '$admin_pw1', ";
 
     $query = "UPDATE metadata " .
              "SET institution  = '$institution', " .
@@ -212,6 +215,7 @@ echo<<<HTML
     <tfoot>
       <tr><td colspan='2'><input type='submit' name='edit' value='Edit' />
                           <input type='submit' name='create' value='Create Instance' />
+                          <input type='submit' name='login_info' value='Display Login Info' />
                           <input type='hidden' name='metadataID' value='$metadataID' />
           </td></tr>
     </tfoot>
@@ -410,6 +414,120 @@ echo<<<HTML
     </tbody>
   </table>
   </form>
+
+HTML;
+}
+
+// Function to display the instance's login information
+function login_info()
+{
+  // Get the record we need to edit
+  if ( isset( $_POST['metadataID'] ) )
+    $metadataID = $_POST['metadataID'];
+
+  else
+  {
+    // How did we get here?
+    echo "<p>There was a problem with the login info request.</p>\n";
+    return;
+  }
+
+  $query  = "SELECT institution, dbname, dbuser, dbpasswd, dbhost, " .
+            "admin_email, admin_pw, " .
+            "secure_user, secure_pw " .
+            "FROM metadata " .
+            "WHERE metadataID = $metadataID ";
+  $result = mysql_query($query) 
+            or die("Query failed : $query<br />\n" . mysql_error());
+
+  list( $institution,
+        $new_dbname,
+        $new_dbuser,
+        $new_dbpasswd,
+        $new_dbhost,
+        $admin_email,
+        $admin_pw,
+        $new_secureuser,
+        $new_securepw )   = mysql_fetch_array( $result );
+
+  $new_grantsfile = $new_dbname . '_grants.sql';
+
+  $script = <<<TEXT
+#!/bin/bash
+# A script to create the $institution database
+
+echo "Use the root password in all cases here";
+
+mysqladmin -u root -p CREATE $new_dbname
+mysql -u root -p $new_dbname < $new_grantsfile
+mysql -u root -p $new_dbname < us3.sql
+mysql -u root -p $new_dbname < us3_procedures.sql
+
+TEXT;
+
+  $grants = <<<TEXT
+--
+-- $new_grantsfile
+--
+-- Establishes the grants needed for the $institution database
+--
+
+GRANT ALL ON $new_dbname.* TO $new_dbuser@localhost IDENTIFIED BY '$new_dbpasswd';
+GRANT ALL ON $new_dbname.* TO $new_dbuser@'%' IDENTIFIED BY '$new_dbpasswd';
+GRANT EXECUTE ON $new_dbname.* TO $new_secureuser@'%' IDENTIFIED BY '$new_securepw' REQUIRE SSL;
+
+TEXT;
+
+  $hints = <<<TEXT
+Database Setup Information
+
+DB Connection Name: $new_secureuser
+DB Password:        $new_securepw
+Database Name:      $new_dbname
+Host Address:       $new_dbhost
+
+
+Admin Investigator Setup Information
+Investigator Email:    $admin_email
+Investigator Password: $admin_pw
+
+LIMS URL:              http://$new_dbhost/$new_dbname
+TEXT;
+
+  global $full_path;
+  $makeconfigfile = $full_path . 'makeconfig.php';
+ 
+  $setupLIMS = <<<TEXT
+#!/bin/bash
+# A script to create the $institution LIMS
+
+DIR=\$(pwd)
+htmldir="/srv/www/htdocs"
+
+echo "Use the zollarsd password here";
+svn co svn+ssh://zollarsd@bcf.uthscsa.edu/us3_lims/trunk \$htmldir/$new_dbname
+mkdir \$htmldir/$new_dbname/data
+sudo chgrp apache \$htmldir/$new_dbname/data
+sudo chmod g+w \$htmldir/$new_dbname/data
+
+#Now make the config.php file
+php $makeconfigfile $new_dbname
+vi \$htmldir/$new_dbname/config.php
+TEXT;
+
+  echo <<<HTML
+
+  <h3>Login hints</h3>
+  <pre>$hints</pre>
+
+  <h3>The database creation script</h3>
+  <pre>$script</pre>
+
+  <h3>The grants script</h3>
+  <pre>$grants</pre>
+
+  <h3>The LIMS setup script</h3>
+  <pre>$setupLIMS</pre>
 
 HTML;
 }

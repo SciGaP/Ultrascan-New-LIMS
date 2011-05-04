@@ -6,8 +6,9 @@
  */
 
 // A list of request status possibilities
-$request_status['requested'] = "Requested";
+$request_status['pending']   = "Pending";
 $request_status['completed'] = "Completed";
+$request_status['denied']    = "Denied";
 
 // Function to create a dropdown for request status
 function request_status_select( $select_name, $current_status = NULL )

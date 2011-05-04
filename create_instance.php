@@ -104,6 +104,14 @@ function do_step1()
   $new_grantsfile = $new_dbname . '_grants.sql';
   $new_hintsfile  = $new_dbname . '.txt';
 
+  // Update the database right away with the secure user info
+  $query  = "UPDATE metadata SET " .
+            "secure_user = '$new_secureuser', " .
+            "secure_pw = '$new_securepw' " .
+            "WHERE metadataID = $metadataID ";
+  mysql_query($query) 
+        or die("Query failed : $query<br />\n" . mysql_error());
+
   $script = <<<TEXT
 #!/bin/bash
 # A script to create the $institution database
@@ -141,8 +149,9 @@ Host Address:       $new_dbhost
 
 Admin Investigator Setup Information
 Investigator Email: $admin_email
-Investigator Password: _______________________
+Investigator Password: $admin_pw
 
+LIMS URL:              http://$new_dbhost/$new_dbname
 TEXT;
 
   global $data_dir;
@@ -161,10 +170,11 @@ TEXT;
       <li>Load the stored procedures</li>
   </ul>
 
-  <p>A script file called $new_scriptfile has been created for you that does 
-     all of this. Move the shell script and the sql script to a directory that
-     contains the UltraScan III sql scripts and execute it. You will need to 
-     use the root password for mysql each time a password is requested. Then click Next--&gt;</p>
+  <p>Two script files called $new_scriptfile and $new_grantsfile have been 
+     created for you that do all of this. Move them to a directory that
+     contains the UltraScan III sql scripts and execute the shell script
+     $new_scriptfile. You will need to use the root password for mysql 
+     each time a password is requested. Then click Next--&gt;</p>
 
   <form action={$_SERVER['PHP_SELF']} method='post' >
     <input type='submit' name='step_2' value='Next--&gt;' />
@@ -273,6 +283,8 @@ function setup_DB( $metadataID )
     $$key = (empty($value)) ? "" : html_entity_decode( stripslashes( nl2br($value) ) );
   }
 
+  $admin_pw_hash = MD5( $admin_pw );
+
   // Now switch databases
   $link2 = mysql_connect( $new_dbhost, $new_dbuser, $new_dbpasswd ) 
            or die("Could not connect to database server.");
@@ -287,7 +299,7 @@ function setup_DB( $metadataID )
             "fname = '$admin_fname', " .
             "lname = '$admin_lname', " .
             "email = '$admin_email', " .
-            "password = '$admin_pw', " .
+            "password = '$admin_pw_hash', " .
             "organization = '$institution', " .
             "activated = true, " .
             "userlevel = 4 ";

@@ -73,7 +73,7 @@ function do_create()
 
   // Default php usernames and such
   $dbname   = preg_replace( "/ /", "_", $lab_name );
-  $dbuser   = $dbname . '_user';
+  $dbuser   = substr( $dbname, 0, 11 ) . '_user';
   $dbpasswd = $dbname . '_pw';
   $dbhost   = 'ultrascan3.uthscsa.edu';
 
@@ -93,7 +93,7 @@ function do_create()
              "lab_contact  = '$lab_contact', " .
              "instrument_name  = '$instrument_name', " .
              "instrument_serial  = '$instrument_serial', " .
-             "status = 'requested', " .
+             "status = 'pending', " .
              "updateTime = NOW() ";
 
     mysql_query($query)
