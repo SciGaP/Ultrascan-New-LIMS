@@ -43,8 +43,19 @@ foreach ( $fields as $field )
 if ( isset( $_POST['create'] ) )
   do_create();
 
-else                  // No, just enter the data
-  enter_record();
+// No, so are we being directed to enter the data?
+else if ( isset( $_POST['enter_request'] ) )
+{
+  // Check if they match
+  if ( $_POST['captcha'] == $_SESSION['captcha'] )
+    enter_record();
+
+  else
+    do_captcha( "Entered text doesn&rsquo;t match." );
+}
+
+else                  // No, just display the captcha
+  do_captcha();
 
 ?>
 </div>
@@ -211,6 +222,49 @@ echo<<<HTML
     </tbody>
   </table>
   </form>
+
+HTML;
+}
+
+// Function to display a captcha and request human input
+function do_captcha( $msg = "" )
+{
+  $message = ( empty( $msg ) ) ? "" : "<p style='color:red;'>$msg</p>";
+
+  // Let's just use the random password function we already have
+  $pw = makeRandomPassword();
+  $_SESSION['captcha'] = $pw;
+
+  // Now create the image
+  //$newImage = imagecreatefromjpeg( 'cap_bg.jpg' );
+  //$textColor = imagecolorallocate( $newImage, 255, 0, 0 );    // red
+  //imagestring( $newImage, 5, 5, 5, $pw, $textColor );
+    
+echo<<<HTML
+  <div id='captcha'>
+
+  $message
+
+HTML;
+
+  // Put out file
+  //imagejpeg( $newImage );
+
+  // for now
+  echo "<h3>$pw</h3>\n";
+
+echo<<<HTML
+  <form action="{$_SERVER['PHP_SELF']}" method="post">
+    <h3>Please enter the code</h3>
+
+    <p><input type='text' name='captcha' size='40' maxlength='10' /></p>
+
+    <p><input type='submit' name='enter_request' value='Enter Request' />
+       <input type='reset' /></p>
+
+  </form>
+
+  </div>
 
 HTML;
 }
