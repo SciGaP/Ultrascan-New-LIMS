@@ -492,7 +492,12 @@ Admin Investigator Setup Information
 Investigator Email:    $admin_email
 Investigator Password: $admin_pw
 
-LIMS URL:              http://$new_dbhost/$new_dbname
+LIMS Setup
+URL:                http://$new_dbhost/$new_dbname
+DB User:            $new_dbuser
+DB Pw:              $new_dbpasswd
+DB Name:            $new_dbname
+DB Host:            $new_dbhost 
 TEXT;
 
   global $full_path;
