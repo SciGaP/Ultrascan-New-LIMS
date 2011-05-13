@@ -112,6 +112,8 @@ function do_step1()
   mysql_query($query) 
         or die("Query failed : $query<br />\n" . mysql_error());
 
+  global $sql_dir;
+
   $script = <<<TEXT
 #!/bin/bash
 # A script to create the $institution database
@@ -120,8 +122,11 @@ echo "Use the root password in all cases here";
 
 mysqladmin -u root -p CREATE $new_dbname
 mysql -u root -p $new_dbname < $new_grantsfile
+
+pushd $sql_dir
 mysql -u root -p $new_dbname < us3.sql
 mysql -u root -p $new_dbname < us3_procedures.sql
+popd
 
 TEXT;
 
@@ -136,6 +141,7 @@ GRANT ALL ON $new_dbname.* TO $new_dbuser@localhost IDENTIFIED BY '$new_dbpasswd
 GRANT ALL ON $new_dbname.* TO $new_dbuser@'%' IDENTIFIED BY '$new_dbpasswd';
 GRANT EXECUTE ON $new_dbname.* TO $new_secureuser@'%' IDENTIFIED BY '$new_securepw' REQUIRE SSL;
 GRANT ALL ON $new_dbname.* TO us3php@localhost;
+GRANT ALL ON $new_dbname.* TO us3php@$new_dbhost;
 
 TEXT;
 
@@ -155,11 +161,19 @@ Investigator Password: $admin_pw
 LIMS URL:              http://$new_dbhost/$new_dbname
 TEXT;
 
-  global $data_dir;
-  file_put_contents( $data_dir . $new_scriptfile, $script );
-  file_put_contents( $data_dir . $new_hintsfile,  $hints  );
-  file_put_contents( $data_dir . $new_grantsfile, $grants );
-  chmod( $data_dir . $new_scriptfile, 0755 );
+  global $output_dir;
+  $current_dir = getcwd();
+  chdir( $output_dir );
+
+  // Let's make sure the instance directory is there
+  if ( ! file_exists( $new_dbname ) )
+    mkdir( $new_dbname, 0755 );
+
+  $instance_dir = $output_dir . $new_dbname . '/';
+  file_put_contents( $instance_dir . $new_scriptfile, $script );
+  file_put_contents( $instance_dir . $new_hintsfile,  $hints  );
+  file_put_contents( $instance_dir . $new_grantsfile, $grants );
+  chmod( $instance_dir . $new_scriptfile, 0755 );
 
   echo <<<HTML
   <p>Step 1</p>
@@ -215,8 +229,8 @@ function do_step2()
 DIR=\$(pwd)
 htmldir="/srv/www/htdocs"
 
-echo "Use the zollarsd password here";
-svn co svn+ssh://zollarsd@bcf.uthscsa.edu/us3_lims/trunk \$htmldir/$new_dbname
+echo "Use the us3 password here";
+svn co svn://us3@bcf.uthscsa.edu/us3_lims/trunk \$htmldir/$new_dbname
 mkdir \$htmldir/$new_dbname/data
 sudo chgrp apache \$htmldir/$new_dbname/data
 sudo chmod g+w \$htmldir/$new_dbname/data
@@ -226,10 +240,11 @@ php $makeconfigfile $new_dbname
 vi \$htmldir/$new_dbname/config.php
 TEXT;
 
-  global $data_dir;
+  global $output_dir;
+  $instance_dir = $output_dir . $new_dbname . '/';
   $new_LIMSfile = $new_dbname . 'LIMS.sh';
-  file_put_contents( $data_dir . $new_LIMSfile, $setupLIMS );
-  chmod( $data_dir . $new_LIMSfile, 0755 );
+  file_put_contents( $instance_dir . $new_LIMSfile, $setupLIMS );
+  chmod( $instance_dir . $new_LIMSfile, 0755 );
 
   echo <<<HTML
   <p>Step 2</p>

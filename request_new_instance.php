@@ -99,7 +99,7 @@ function do_create()
              "admin_fname  = '$admin_fname', " .
              "admin_lname  = '$admin_lname', " .
              "admin_email  = '$admin_email', " .
-             "admin_pw  = MD5('$admin_pw1'), " .
+             "admin_pw  = '$admin_pw1', " .
              "lab_name  = '$lab_name', " .
              "lab_contact  = '$lab_contact', " .
              "instrument_name  = '$instrument_name', " .

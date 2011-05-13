@@ -402,11 +402,11 @@ echo<<<HTML
                       wrap='virtual'>$lab_contact</textarea></td></tr>
     <tr><th colspan='2'>Information about the AUC Instrument</th></tr>
     <tr><th>The name of the AUC Instrument:</th>
-        <td><textarea name='instrument_name' rows='6' cols='65' 
-                      wrap='virtual'>$instrument_name</textarea></td></tr>
+        <td><input type='text' name='instrument_name' size='40' 
+                   maxlength='80' value='$instrument_name' /></td></tr>
     <tr><th>The Instrument Serial #:</th>
-        <td><textarea name='instrument_serial' rows='6' cols='65' 
-                      wrap='virtual'>$instrument_serial</textarea></td></tr>
+        <td><input type='text' name='instrument_serial' size='40' 
+                   maxlength='80' value='$instrument_serial' /></td></tr>
     <tr><th>Status:</th>
         <td>$status_text</td></tr>
 

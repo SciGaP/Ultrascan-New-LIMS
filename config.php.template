@@ -25,6 +25,8 @@ $top_banner         = 'images/#';  # name of the banner at the top
 
 $full_path          = '/srv/www/htdocs/newlims/';  # Location of the system code
 $data_dir           = '/srv/www/htdocs/newlims/data/'; # Full path
+$output_dir         = '/home/us3/database/instances/'; # Where db creation files will go
+$sql_dir            = '/home/us3/database/sql/'; # Where the sql script files are
 $disclaimer_file    = ''; # the name of a text file with disclaimer info
 
 // Dates
@@ -38,6 +40,12 @@ $current_year       = date( 'Y' );
 // ensure a trailing slash
 if ( $data_dir[strlen($data_dir) - 1] != '/' )
   $data_dir .= '/';
+
+if ( $output_dir[strlen($output_dir) - 1] != '/' )
+  $output_dir .= '/';
+
+if ( $sql_dir[strlen($sql_dir) - 1] != '/' )
+  $sql_dir .= '/';
 
 /* Define our file paths */
 if ( ! defined('HOME_DIR') ) 

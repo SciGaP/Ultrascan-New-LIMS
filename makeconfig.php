@@ -92,8 +92,8 @@ $text = <<<TEXT
 \$globaldbname       = 'gfac';  # the name of the database
 \$globaldbhost       = 'ultrascan3.uthscsa.edu'; # the host on which MySQL runs, generally localhost
 
-\$ipaddr             = '129.111.140.173'; # the external IP address of the host machine
-\$udpport            = 12335; # the port to send udp messages to
+\$ipaddr             = '129.111.140.167'; # the external IP address of the host machine
+\$udpport            = 12233; # the port to send udp messages to
 
 \$top_image          = '#';  # name of the logo to use
 \$top_banner         = 'images/#';  # name of the banner at the top
