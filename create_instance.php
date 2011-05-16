@@ -186,10 +186,12 @@ TEXT;
   </ul>
 
   <p>Two script files called $new_scriptfile and $new_grantsfile have been 
-     created for you that do all of this. Move them to a directory that
-     contains the UltraScan III sql scripts and execute the shell script
-     $new_scriptfile. You will need to use the root password for mysql 
-     each time a password is requested. Then click Next--&gt;</p>
+     created for you in the us3 user&rsquo;s $instance_dir directory that
+     do all of this. As the us3 user, execute the shell script $new_scriptfile 
+     from there, as it depends on having the UltraScanIII sql script files 
+     in a particular place relative to this directory. The grant file will 
+     be included automatically. You will need to use the root password for 
+     mysql each time a password is requested. Then click Next--&gt;</p>
 
   <form action={$_SERVER['PHP_SELF']} method='post' >
     <input type='submit' name='step_2' value='Next--&gt;' />
@@ -256,8 +258,9 @@ TEXT;
       <li>Create the config.php file</li>
   </ul>
 
-  <p>A script file called $new_LIMSfile has been created for you that does 
-     all of this. Execute the script. At the end of the process the script will
+  <p>A script file called $new_LIMSfile has been created for you in the us3 
+     user&rsquo;s $instance_dir directory that does all of this. As the us3 
+     user, execute the script. At the end of the process the script will
      present the generated config.php for you to edit. Double check the file 
      using this information:</p>
 

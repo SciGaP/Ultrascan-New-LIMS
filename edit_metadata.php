@@ -452,6 +452,8 @@ function login_info()
 
   $new_grantsfile = $new_dbname . '_grants.sql';
 
+  global $sql_dir;
+
   $script = <<<TEXT
 #!/bin/bash
 # A script to create the $institution database
@@ -460,9 +462,11 @@ echo "Use the root password in all cases here";
 
 mysqladmin -u root -p CREATE $new_dbname
 mysql -u root -p $new_dbname < $new_grantsfile
+
+pushd $sql_dir
 mysql -u root -p $new_dbname < us3.sql
 mysql -u root -p $new_dbname < us3_procedures.sql
-
+popd
 TEXT;
 
   $grants = <<<TEXT
@@ -476,6 +480,7 @@ GRANT ALL ON $new_dbname.* TO $new_dbuser@localhost IDENTIFIED BY '$new_dbpasswd
 GRANT ALL ON $new_dbname.* TO $new_dbuser@'%' IDENTIFIED BY '$new_dbpasswd';
 GRANT EXECUTE ON $new_dbname.* TO $new_secureuser@'%' IDENTIFIED BY '$new_securepw' REQUIRE SSL;
 GRANT ALL ON $new_dbname.* TO us3php@localhost;
+GRANT ALL ON $new_dbname.* TO us3php@$new_dbhost;
 
 TEXT;
 
@@ -510,8 +515,8 @@ TEXT;
 DIR=\$(pwd)
 htmldir="/srv/www/htdocs"
 
-echo "Use the zollarsd password here";
-svn co svn+ssh://zollarsd@bcf.uthscsa.edu/us3_lims/trunk \$htmldir/$new_dbname
+echo "Use the us3 password here";
+svn co svn://us3@bcf.uthscsa.edu/us3_lims/trunk \$htmldir/$new_dbname
 mkdir \$htmldir/$new_dbname/data
 sudo chgrp apache \$htmldir/$new_dbname/data
 sudo chmod g+w \$htmldir/$new_dbname/data
@@ -519,6 +524,7 @@ sudo chmod g+w \$htmldir/$new_dbname/data
 #Now make the config.php file
 php $makeconfigfile $new_dbname
 vi \$htmldir/$new_dbname/config.php
+
 TEXT;
 
   echo <<<HTML
