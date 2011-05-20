@@ -235,27 +235,15 @@ function do_captcha( $msg = "" )
   $pw = makeRandomPassword();
   $_SESSION['captcha'] = $pw;
 
-  // Now create the image
-  //$newImage = imagecreatefromjpeg( 'cap_bg.jpg' );
-  //$textColor = imagecolorallocate( $newImage, 255, 0, 0 );    // red
-  //imagestring( $newImage, 5, 5, 5, $pw, $textColor );
-    
 echo<<<HTML
   <div id='captcha'>
 
   $message
 
-HTML;
+  <img src='create_captcha.php' alt='Captcha image' />
 
-  // Put out file
-  //imagejpeg( $newImage );
-
-  // for now
-  echo "<h3>$pw</h3>\n";
-
-echo<<<HTML
   <form action="{$_SERVER['PHP_SELF']}" method="post">
-    <h3>Please enter the code</h3>
+    <h3>Please enter the code above to proceed to new instance request</h3>
 
     <p><input type='text' name='captcha' size='40' maxlength='10' /></p>
 
