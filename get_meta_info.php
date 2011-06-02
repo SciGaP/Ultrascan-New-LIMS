@@ -10,6 +10,7 @@
 
 
 $institution       = trim(substr(addslashes(htmlentities($_POST['institution'])), 0,45));
+$inst_abbrev       = trim(substr(addslashes(htmlentities($_POST['inst_abbrev'])), 0,10));
 $admin_fname       = trim(substr(addslashes(htmlentities($_POST['admin_fname'])), 0,30));
 $admin_lname       = trim(substr(addslashes(htmlentities($_POST['admin_lname'])), 0,30));
 $admin_email       = trim(substr(addslashes(htmlentities($_POST['admin_email'])), 0,63));
@@ -23,6 +24,9 @@ $instrument_serial = trim(       addslashes(htmlentities($_POST['instrument_seri
 $message = "";
 if ( empty($institution) )
   $message .= "--institution is missing<br />";
+
+if ( empty($inst_abbrev) )
+  $message .= "--institution abbreviation is missing<br />";
 
 if ( empty($admin_fname) )
   $message .= "--administrator first name is missing<br />";

@@ -19,6 +19,7 @@ include 'lib/utility.php';
 
 // Let's keep track of these fields
 $fields = array( 'institution',
+                 'inst_abbrev',
                  'admin_fname',
                  'admin_lname',
                  'admin_email',
@@ -77,21 +78,33 @@ function do_create()
   if ( $admin_pw1 != $admin_pw2 )
     $message .= "--administrator passwords do not match.<br />";
 
+  // Check $inst_abbrev, which needs to be unique
+  $inst_abbrev = preg_replace( "/ /", "_", $inst_abbrev );
+  $query  = "SELECT COUNT(*) FROM metadata " .
+            "WHERE inst_abbrev = '$inst_abbrev' ";
+  $result =  mysql_query($query)
+             or die("Query failed : $query<br />\n" . mysql_error());
+  list( $count ) = mysql_fetch_array( $result );
+  if ( $count > 0 )
+    $message .= "--abbreviation $inst_abbrev is already in use.<br />";
+
   // Keep track of these in session variables
   global $fields;
   foreach( $fields as $field )
     $_SESSION[ $field ] = $$field;
 
   // Default php usernames and such
-  $dbname   = preg_replace( "/ /", "_", $lab_name );
-  $dbuser   = substr( $dbname, 0, 11 ) . '_user';
-  $dbpasswd = $dbname . '_pw';
+  $dbname   = $inst_abbrev ;   // 10 chars max
+  $dbuser   = $dbname . '_user';
+  $dbname   = "uslims3_$dbname";
+  $dbpasswd = makeRandomPassword();
   $dbhost   = 'ultrascan3.uthscsa.edu';
 
   if ( empty( $message ) )
   {
     $query = "INSERT INTO metadata " .
              "SET institution  = '$institution', " .
+             "inst_abbrev = '$inst_abbrev', " .
              "dbname = '$dbname', " .
              "dbuser = '$dbuser', " .
              "dbpasswd = '$dbpasswd', " .
@@ -140,7 +153,8 @@ echo<<<HTML
       <tr><th colspan='2'>Information about the Institution</th></tr>
       <tr><th>Institution:</th>
           <td>$institution</td></tr>
-      <tr><th colspan='2'>Information about the Administrator</th></tr>
+      <tr><th>Institution Abbreviation:</th>
+          <td>$inst_abbrev</td></tr>
       <tr><th>First Name:</th>
           <td>$admin_fname</td></tr>
       <tr><th>Last Name:</th>
@@ -189,6 +203,9 @@ echo<<<HTML
     <tr><th>Name of the Institution:</th>
         <td><input type='text' name='institution' size='40'
                    maxlength='45' value='$institution' /></td></tr>
+    <tr><th>Short Abbreviation for the Institution (10 chars max):</th>
+        <td><input type='text' name='inst_abbrev' size='40'
+                   maxlength='10' value='$inst_abbrev' /></td></tr>
     <tr><th colspan='2'>Information about the Facility Administrator</th></tr>
     <tr><th>First Name:</th>
         <td><input type='text' name='admin_fname' size='40'

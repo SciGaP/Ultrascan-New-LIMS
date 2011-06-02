@@ -83,7 +83,7 @@ function do_step1()
     return;
   }
 
-  $query  = "SELECT institution, dbname, dbuser, dbpasswd, dbhost, " .
+  $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, " .
             "admin_email, admin_pw " .
             "FROM metadata " .
             "WHERE metadataID = $metadataID ";
@@ -91,6 +91,7 @@ function do_step1()
             or die("Query failed : $query<br />\n" . mysql_error());
 
   list( $institution,
+        $inst_abbrev,
         $new_dbname,
         $new_dbuser,
         $new_dbpasswd,
@@ -98,7 +99,7 @@ function do_step1()
         $admin_email,
         $admin_pw )   = mysql_fetch_array( $result );
 
-  $new_secureuser = substr( $new_dbname, 0, 12 ) . '_sec';
+  $new_secureuser = $inst_abbrev . '_sec';
   $new_securepw   = makeRandomPassword();
   $new_scriptfile = $new_dbname . '.sh';
   $new_grantsfile = $new_dbname . '_grants.sql';

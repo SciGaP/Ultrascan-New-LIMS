@@ -36,7 +36,7 @@ if ( isset( $_POST['create'] ) )
   $metadataID = $_POST['metadataID'];
 
   // We have to check if all the fields have data before going on.
-  $query  = "SELECT institution, dbname, dbuser, dbpasswd, dbhost, " .
+  $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, " .
             "admin_fname, admin_lname, admin_email, admin_pw, " .
             "lab_name, lab_contact, " .
             "instrument_name, instrument_serial, " .
@@ -139,6 +139,17 @@ function do_update()
   if ( $admin_pw1 != $admin_pw2 )
     $message .= "--administrator passwords do not match.<br />";
 
+  // Check $inst_abbrev, which needs to be unique
+  $inst_abbrev = preg_replace( "/ /", "_", $inst_abbrev );
+  $query  = "SELECT COUNT(*) FROM metadata " .
+            "WHERE inst_abbrev = '$inst_abbrev' " .
+            "AND metadataID != $metadataID ";
+  $result =  mysql_query($query)
+             or die("Query failed : $query<br />\n" . mysql_error());
+  list( $count ) = mysql_fetch_array( $result );
+  if ( $count > 0 )
+    $message .= "--abbreviation $inst_abbrev is already in use.<br />";
+
   if ( empty( $message ) )
   {
     $admin_pw_text    = ( empty( $admin_pw1 ) ) 
@@ -146,6 +157,7 @@ function do_update()
 
     $query = "UPDATE metadata " .
              "SET institution  = '$institution', " .
+             "inst_abbrev = '$inst_abbrev', " .
              "dbname  = '$dbname', " .
              "dbuser  = '$dbuser', " .
              "dbpasswd  = '$dbpasswd', " .
@@ -185,7 +197,7 @@ function display_record()
   if ($metadataID === false)
     return;
 
-  $query  = "SELECT institution, dbname, dbuser, dbpasswd, dbhost, " .
+  $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, " .
             "admin_fname, admin_lname, admin_email, " .
             "lab_name, lab_contact, " .
             "instrument_name, instrument_serial, " .
@@ -223,6 +235,8 @@ echo<<<HTML
       <tr><th colspan='2'>Information about the Database</th></tr>
       <tr><th>Institution:</th>
           <td>$institution</td></tr>
+      <tr><th>Institution Abbreviation:</th>
+          <td>$inst_abbrev</td></tr>
       <tr><th>Database Name:</th>
           <td>$dbname</td></tr>
       <tr><th>The LIMS Username:</th>
@@ -317,7 +331,7 @@ function edit_record()
     return;
   }
 
-  $query  = "SELECT institution, dbname, dbuser, dbpasswd, dbhost, " .
+  $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, " .
             "admin_fname, admin_lname, admin_email, " .
             "lab_name, lab_contact, " .
             "instrument_name, instrument_serial, " .
@@ -331,6 +345,7 @@ function edit_record()
 
 
   $institution         = html_entity_decode( stripslashes( $row['institution'] ) );
+  $inst_abbrev         = html_entity_decode( stripslashes( $row['inst_abbrev'] ) );
   $dbname              = html_entity_decode( stripslashes( $row['dbname'] ) );
   $dbuser              = html_entity_decode( stripslashes( $row['dbuser'] ) );
   $dbpasswd            = html_entity_decode( stripslashes( $row['dbpasswd'] ) );
@@ -365,6 +380,9 @@ echo<<<HTML
     <tr><th>Institution:</th>
         <td><input type='text' name='institution' size='40'
                    maxlength='30' value='$institution' /></td></tr>
+    <tr><th>Short Abbreviation for the Institution (10 chars max):</th>
+        <td><input type='text' name='inst_abbrev' size='40'
+                   maxlength='10' value='$inst_abbrev' /></td></tr>
     <tr><th>Database Name:</th>
         <td><input type='text' name='dbname' size='40'
                    maxlength='30' value='$dbname' /></td></tr>
@@ -432,7 +450,7 @@ function login_info()
     return;
   }
 
-  $query  = "SELECT institution, dbname, dbuser, dbpasswd, dbhost, " .
+  $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, " .
             "admin_email, admin_pw, " .
             "secure_user, secure_pw " .
             "FROM metadata " .
@@ -441,6 +459,7 @@ function login_info()
             or die("Query failed : $query<br />\n" . mysql_error());
 
   list( $institution,
+        $inst_abbrev,
         $new_dbname,
         $new_dbuser,
         $new_dbpasswd,
