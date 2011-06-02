@@ -89,7 +89,7 @@ include 'lib/selectboxes.php';
 
 if ( isset( $_SESSION['message'] ) )
 {
-  echo "<p class='message'>The following errors were noted:</p>\n";
+  echo "<p class='message'>The following errors/conditions were noted:</p>\n";
   echo "<p class='message'>{$_SESSION['message']}</p>\n";
   unset( $_SESSION['message'] );
 }
@@ -100,6 +100,9 @@ if ( isset($_POST['edit']) || isset($_GET['edit']) )
 
 else if ( isset($_POST['login_info']) )
   login_info();
+
+else if ( isset($_POST['email_login']) )
+  email_login_info();
 
 else
   display_record();
@@ -228,6 +231,7 @@ echo<<<HTML
       <tr><td colspan='2'><input type='submit' name='edit' value='Edit' />
                           <input type='submit' name='create' value='Create Instance' />
                           <input type='submit' name='login_info' value='Display Login Info' />
+                          <input type='submit' name='email_login' value='Email Login Info' />
                           <input type='hidden' name='metadataID' value='$metadataID' />
           </td></tr>
     </tfoot>
@@ -561,6 +565,93 @@ TEXT;
   <pre>$setupLIMS</pre>
 
 HTML;
+}
+
+// Function to email login information to the administrator
+function email_login_info()
+{
+  // Get the record we need to edit
+  if ( isset( $_POST['metadataID'] ) )
+    $metadataID = $_POST['metadataID'];
+
+  else
+  {
+    // How did we get here?
+    echo "<p>There was a problem with the email request.</p>\n";
+    return;
+  }
+
+  $query  = "SELECT admin_fname, admin_lname, dbname, dbhost, " .
+            "admin_email AS email, admin_pw, " .
+            "secure_user, secure_pw " .
+            "FROM metadata " .
+            "WHERE metadataID = $metadataID ";
+  $result = mysql_query($query) 
+            or die("Query failed : $query<br />\n" . mysql_error());
+
+  list( $fname,
+        $lname,
+        $new_dbname,
+        $new_dbhost,
+        $email,
+        $admin_pw,
+        $new_secureuser,
+        $new_securepw )   = mysql_fetch_array( $result );
+
+  $hints = <<<TEXT
+Database Setup Information
+
+DB Connection Name: $new_secureuser
+DB Password:        $new_securepw
+Database Name:      $new_dbname
+Host Address:       $new_dbhost
+
+
+Admin Investigator Setup Information
+Investigator Email:    $email
+Investigator Password: $admin_pw
+
+LIMS Setup
+URL:                http://$new_dbhost/$new_dbname
+TEXT;
+
+  // Mail the user
+
+  global $org_name, $admin_email;
+
+  $subject = "Your UltraScan database account";
+
+  $message = "Dear $fname $lname,
+  Your UltraScan database has been set up. Information for accessing
+  it is as follows:
+      
+  $hints
+
+  Please save this message for your reference.
+  Thanks!
+  The $org_name Admins.
+
+  This is an automated email, do not reply!";
+
+  $now = time();
+  $headers = "From: $org_name Admin<$admin_email>"     . "\n";
+
+  // Set the reply address
+  $headers .= "Reply-To: $org_name<$admin_email>"      . "\n";
+  $headers .= "Return-Path: $org_name<$admin_email>"   . "\n";
+
+  // Try to avoid spam filters
+  $headers .= "Message-ID: <" . $now . "info@" . $_SERVER['SERVER_NAME'] . ">\n";
+  $headers .= "X-Mailer: PHP v" . phpversion()         . "\n";
+  $headers .= "MIME-Version: 1.0"                      . "\n";
+  $headers .= "Content-Transfer-Encoding: 8bit"        . "\n";
+
+  mail($email, $subject, $message, $headers);
+
+  $_SESSION['message'] = "The email has been sent.";
+
+  header("Location: $_SERVER[PHP_SELF]?ID=$metadataID");
+  exit();
 }
 
 ?>
