@@ -83,7 +83,7 @@ function do_step1()
     return;
   }
 
-  $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, " .
+  $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, limshost, " .
             "admin_email, admin_pw " .
             "FROM metadata " .
             "WHERE metadataID = $metadataID ";
@@ -96,6 +96,7 @@ function do_step1()
         $new_dbuser,
         $new_dbpasswd,
         $new_dbhost,
+        $new_limshost,
         $admin_email,
         $admin_pw )   = mysql_fetch_array( $result );
 
@@ -159,7 +160,7 @@ Admin Investigator Setup Information
 Investigator Email: $admin_email
 Investigator Password: $admin_pw
 
-LIMS URL:              http://$new_dbhost/$new_dbname
+LIMS URL:              http://$new_limshost/$new_dbname
 TEXT;
 
   global $output_dir;
@@ -230,7 +231,7 @@ function do_step2()
 # A script to create the $institution LIMS
 
 DIR=\$(pwd)
-htmldir="/srv/www/htdocs"
+htmldir="/srv/www/htdocs/uslims/uslims3"
 
 echo "Use the us3 password here";
 svn co svn://us3@bcf.uthscsa.edu/us3_lims/trunk \$htmldir/$new_dbname
@@ -273,7 +274,7 @@ TEXT;
     <tr><th>Global DB User:</th><td>gfac</td></tr>
     <tr><th>Global DB password:</th><td>backend</td></tr>
     <tr><th>Global DB name:</th><td>gfac</td></tr>
-    <tr><th>Global DB host:</th><td>ultrascan3.uthscsa.edu</td></tr>
+    <tr><th>Global DB host:</th><td>ultrascan.uthscsa.edu</td></tr>
   </table>
 
   <p>The database instance has been created.</p>

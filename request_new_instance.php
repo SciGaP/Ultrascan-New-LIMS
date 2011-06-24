@@ -25,6 +25,7 @@ $fields = array( 'institution',
                  'admin_email',
                  'lab_name',
                  'lab_contact',
+                 'location',
                  'instrument_name',
                  'instrument_serial' );
 foreach ( $fields as $field )
@@ -98,7 +99,8 @@ function do_create()
   $dbuser   = $dbname . '_user';
   $dbname   = "uslims3_$dbname";
   $dbpasswd = makeRandomPassword();
-  $dbhost   = 'ultrascan3.uthscsa.edu';
+  $dbhost   = 'ultrascan.uthscsa.edu';
+  $limshost = 'uslims3.uthscsa.edu';
 
   if ( empty( $message ) )
   {
@@ -109,12 +111,14 @@ function do_create()
              "dbuser = '$dbuser', " .
              "dbpasswd = '$dbpasswd', " .
              "dbhost = '$dbhost', " .
+             "limshost = '$limshost', " .
              "admin_fname  = '$admin_fname', " .
              "admin_lname  = '$admin_lname', " .
              "admin_email  = '$admin_email', " .
              "admin_pw  = '$admin_pw1', " .
              "lab_name  = '$lab_name', " .
              "lab_contact  = '$lab_contact', " .
+             "location = '$location', " .
              "instrument_name  = '$instrument_name', " .
              "instrument_serial  = '$instrument_serial', " .
              "status = 'pending', " .
@@ -166,6 +170,8 @@ echo<<<HTML
           <td>$lab_name</td></tr>
       <tr><th>Contact information for the facility:</th>
           <td>$lab_contact</td></tr>
+      <tr><th>Brief location of the facility:</th>
+          <td>$location</td></tr>
       <tr><th colspan='2'>Information about the AUC Instrument</th></tr>
       <tr><th>The name of the AUC Instrument:</th>
           <td>$instrument_name</td></tr>
@@ -202,7 +208,7 @@ echo<<<HTML
     <tr><th colspan='2'>Information about the Institution</th></tr>
     <tr><th>Name of the Institution:</th>
         <td><input type='text' name='institution' size='40'
-                   maxlength='45' value='$institution' /></td></tr>
+                   maxlength='255' value='$institution' /></td></tr>
     <tr><th>Short Abbreviation for the Institution (10 chars max):</th>
         <td><input type='text' name='inst_abbrev' size='40'
                    maxlength='10' value='$inst_abbrev' /></td></tr>
@@ -229,6 +235,9 @@ echo<<<HTML
     <tr><th>Facility Contact Information:</th>
         <td><textarea name='lab_contact' rows='6' cols='65' 
                       wrap='virtual'>$lab_contact</textarea></td></tr>
+    <tr><th>Brief location info (for a listing):</th>
+        <td><input type='text' name='location' size='40' 
+                   maxlength='255' value='$location' /></td></tr>
     <tr><th colspan='2'>Information about the AUC Instrument</th></tr>
     <tr><th>The name of the AUC Instrument:</th>
         <td><input type='text' name='instrument_name' size='40' 

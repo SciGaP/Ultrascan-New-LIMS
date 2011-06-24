@@ -9,13 +9,14 @@
  */
 
 
-$institution       = trim(substr(addslashes(htmlentities($_POST['institution'])), 0,45));
+$institution       = trim(substr(addslashes(htmlentities($_POST['institution'])), 0,255));
 $inst_abbrev       = trim(substr(addslashes(htmlentities($_POST['inst_abbrev'])), 0,10));
 $admin_fname       = trim(substr(addslashes(htmlentities($_POST['admin_fname'])), 0,30));
 $admin_lname       = trim(substr(addslashes(htmlentities($_POST['admin_lname'])), 0,30));
 $admin_email       = trim(substr(addslashes(htmlentities($_POST['admin_email'])), 0,63));
 $lab_name          = trim(       addslashes(htmlentities($_POST['lab_name'])));
 $lab_contact       = trim(       addslashes(htmlentities($_POST['lab_contact'])));
+$location          = trim(substr(addslashes(htmlentities($_POST['location'])), 0, 255));
 $instrument_name   = trim(       addslashes(htmlentities($_POST['instrument_name'])));
 $instrument_serial = trim(       addslashes(htmlentities($_POST['instrument_serial'])));
 
@@ -48,6 +49,9 @@ if ( empty($lab_name) )
 
 if ( empty($lab_contact) )
   $message .= "--facility contact info is missing<br />";
+
+if ( empty($location) )
+  $message .= "--location info is missing<br />";
 
 if ( empty($instrument_name) )
   $message .= "--instrument name is missing<br />";

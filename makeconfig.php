@@ -39,7 +39,7 @@ $query  = "SELECT institution, dbuser, dbpasswd, dbhost, " .
           "admin_fname, admin_lname, admin_email, admin_pw " .
           "FROM metadata " .
           "WHERE dbname = '$new_dbname' ";
-echo $query;
+
 $result = mysql_query($query) 
           or die("Query failed : $query<br />\n" . mysql_error());
 
@@ -48,8 +48,6 @@ if ( mysql_num_rows( $result ) != 1 )
   echo "$new_dbname not found\n";
   exit();
 }
-
-echo $query;
 
 list( $institution,
       $new_dbuser,
@@ -71,7 +69,7 @@ $text = <<<TEXT
 */
 
 \$org_name           = 'UltraScan3 LIMS portal';
-\$org_site           = 'ultrascan3.uthscsa.edu/$new_dbname';
+\$org_site           = 'uslims3.uthscsa.edu/$new_dbname';
 \$site_author        = 'Dan Zollars, University of Texas Health Science Center';
 \$site_keywords      = 'ultrascan analytical ultracentrifugation lims';
                       # The website keywords (meta tag)
@@ -90,7 +88,7 @@ $text = <<<TEXT
 \$globaldbuser       = 'gfac';  # the name of the MySQL user
 \$globaldbpasswd     = 'backend';  # the password for the MySQL user
 \$globaldbname       = 'gfac';  # the name of the database
-\$globaldbhost       = 'ultrascan3.uthscsa.edu'; # the host on which MySQL runs, generally localhost
+\$globaldbhost       = 'ultrascan.uthscsa.edu'; # the host on which MySQL runs, generally localhost
 
 \$ipaddr             = '129.111.140.167'; # the external IP address of the host machine
 \$udpport            = 12233; # the port to send udp messages to
@@ -98,8 +96,8 @@ $text = <<<TEXT
 \$top_image          = '#';  # name of the logo to use
 \$top_banner         = 'images/#';  # name of the banner at the top
 
-\$full_path          = '/srv/www/htdocs/$new_dbname/';  # Location of the system code
-\$data_dir           = '/srv/www/htdocs/$new_dbname/data/'; # Full path
+\$full_path          = '$dest_path$new_dbname/';  # Location of the system code
+\$data_dir           = '$dest_path$new_dbname/data/'; # Full path
 \$disclaimer_file    = ''; # the name of a text file with disclaimer info
 
 // Dates
@@ -128,8 +126,8 @@ if ( ! defined('DEBUG') )
 ?>
 TEXT;
 
-if ( file_exists( "/srv/www/htdocs/$new_dbname" ) )
-  file_put_contents( "/srv/www/htdocs/$new_dbname/config.php", $text );
+if ( file_exists( $dest_path . $new_dbname ) )
+  file_put_contents( $dest_path . "$new_dbname/config.php", $text );
 
 else
 {
@@ -138,5 +136,4 @@ else
   file_put_contents( $data_dir . 'config.php', $text );
 }
 
-echo $text;
 ?>

@@ -36,9 +36,9 @@ if ( isset( $_POST['create'] ) )
   $metadataID = $_POST['metadataID'];
 
   // We have to check if all the fields have data before going on.
-  $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, " .
+  $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, limshost, " .
             "admin_fname, admin_lname, admin_email, admin_pw, " .
-            "lab_name, lab_contact, " .
+            "lab_name, lab_contact, location, " .
             "instrument_name, instrument_serial, " .
             "status " .
             "FROM metadata " .
@@ -123,6 +123,7 @@ function do_update()
   $dbuser       = trim(substr(addslashes(htmlentities($_POST['dbuser'])), 0,30));
   $dbpasswd     = trim(substr(addslashes(htmlentities($_POST['dbpasswd'])), 0,30));
   $dbhost       = trim(substr(addslashes(htmlentities($_POST['dbhost'])), 0,30));
+  $limshost     = trim(substr(addslashes(htmlentities($_POST['limshost'])), 0,30));
   $admin_pw1    = trim(substr(addslashes(htmlentities($_POST['admin_pw1'])), 0,80));
   $admin_pw2    = trim(substr(addslashes(htmlentities($_POST['admin_pw2'])), 0,80));
   $status       =                                     $_POST['status'];
@@ -138,6 +139,9 @@ function do_update()
 
   if ( empty( $dbhost ) )
     $message .= "--db host cannot be empty.<br />";
+
+  if ( empty( $limshost ) )
+    $message .= "--lims host cannot be empty.<br />";
 
   if ( $admin_pw1 != $admin_pw2 )
     $message .= "--administrator passwords do not match.<br />";
@@ -165,12 +169,14 @@ function do_update()
              "dbuser  = '$dbuser', " .
              "dbpasswd  = '$dbpasswd', " .
              "dbhost  = '$dbhost', " .
+             "limshost  = '$limshost', " .
              "admin_fname  = '$admin_fname', " .
              "admin_lname  = '$admin_lname', " .
              "admin_email  = '$admin_email', " .
              $admin_pw_text .
              "lab_name  = '$lab_name', " .
              "lab_contact  = '$lab_contact', " .
+             "location = '$location', " .
              "instrument_name  = '$instrument_name', " .
              "instrument_serial  = '$instrument_serial', " .
              "status  = '$status', " .
@@ -200,9 +206,9 @@ function display_record()
   if ($metadataID === false)
     return;
 
-  $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, " .
+  $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, limshost, " .
             "admin_fname, admin_lname, admin_email, " .
-            "lab_name, lab_contact, " .
+            "lab_name, lab_contact, location, " .
             "instrument_name, instrument_serial, " .
             "status " .
             "FROM metadata " .
@@ -247,8 +253,10 @@ echo<<<HTML
           <td>$dbuser</td></tr>
       <tr><th>The LIMS Password:</th>
           <td>$dbpasswd</td></tr>
-      <tr><th>The LIMS Server Name:</th>
+      <tr><th>The DB Server Name:</th>
           <td>$dbhost</td></tr>
+      <tr><th>The LIMS Server Name:</th>
+          <td>$limshost</td></tr>
       <tr><th colspan='2'>Information about the Administrator</th></tr>
       <tr><th>First Name:</th>
           <td>$admin_fname</td></tr>
@@ -261,6 +269,8 @@ echo<<<HTML
           <td>$lab_name</td></tr>
       <tr><th>Facility Contact Information:</th>
           <td>$lab_contact</td></tr>
+      <tr><th>Brief location of the facility:</th>
+          <td>$location</td></tr>
       <tr><th colspan='2'>Information about the AUC Instrument</th></tr>
       <tr><th>The name of the AUC Instrument:</th>
           <td>$instrument_name</td></tr>
@@ -335,9 +345,9 @@ function edit_record()
     return;
   }
 
-  $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, " .
+  $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, limshost, " .
             "admin_fname, admin_lname, admin_email, " .
-            "lab_name, lab_contact, " .
+            "lab_name, lab_contact, location, " .
             "instrument_name, instrument_serial, " .
             "status " .
             "FROM metadata " .
@@ -354,11 +364,13 @@ function edit_record()
   $dbuser              = html_entity_decode( stripslashes( $row['dbuser'] ) );
   $dbpasswd            = html_entity_decode( stripslashes( $row['dbpasswd'] ) );
   $dbhost              = html_entity_decode( stripslashes( $row['dbhost'] ) );
+  $limshost            = html_entity_decode( stripslashes( $row['limshost'] ) );
   $admin_fname         = html_entity_decode( stripslashes( $row['admin_fname'] ) );
   $admin_lname         = html_entity_decode( stripslashes( $row['admin_lname'] ) );
   $admin_email         = html_entity_decode( stripslashes( $row['admin_email'] ) );
   $lab_name            = html_entity_decode( stripslashes( $row['lab_name'] ) );
   $lab_contact         = html_entity_decode( stripslashes( $row['lab_contact'] ) );
+  $location            = html_entity_decode( stripslashes( $row['location'] ) );
   $instrument_name     = html_entity_decode( stripslashes( $row['instrument_name'] ) );
   $instrument_serial   = html_entity_decode( stripslashes( $row['instrument_serial'] ) );
   $status              =                                   $row['status'];
@@ -383,7 +395,7 @@ echo<<<HTML
     <tr><th colspan='2'>Information about the Database</th></tr>
     <tr><th>Institution:</th>
         <td><input type='text' name='institution' size='40'
-                   maxlength='30' value='$institution' /></td></tr>
+                   maxlength='255' value='$institution' /></td></tr>
     <tr><th>Short Abbreviation for the Institution (10 chars max):</th>
         <td><input type='text' name='inst_abbrev' size='40'
                    maxlength='10' value='$inst_abbrev' /></td></tr>
@@ -396,9 +408,12 @@ echo<<<HTML
     <tr><th>The LIMS Password:</th>
         <td><input type='text' name='dbpasswd' size='40'
                    maxlength='30' value='$dbpasswd' /></td></tr>
-    <tr><th>The LIMS Server Name:</th>
+    <tr><th>The DB Server Name:</th>
         <td><input type='text' name='dbhost' size='40'
                    maxlength='30' value='$dbhost' /></td></tr>
+    <tr><th>The LIMS Server Name:</th>
+        <td><input type='text' name='limshost' size='40'
+                   maxlength='30' value='$limshost' /></td></tr>
     <tr><th colspan='2'>Information about the Administrator</th></tr>
     <tr><th>First Name:</th>
         <td><input type='text' name='admin_fname' size='40'
@@ -422,6 +437,9 @@ echo<<<HTML
     <tr><th>Facility Contact Information:</th>
         <td><textarea name='lab_contact' rows='6' cols='65' 
                       wrap='virtual'>$lab_contact</textarea></td></tr>
+    <tr><th>Brief location info (for a listing):</th>
+        <td><input type='text' name='location' size='40' 
+                   maxlength='255' value='$location' /></td></tr>
     <tr><th colspan='2'>Information about the AUC Instrument</th></tr>
     <tr><th>The name of the AUC Instrument:</th>
         <td><input type='text' name='instrument_name' size='40' 
@@ -454,7 +472,7 @@ function login_info()
     return;
   }
 
-  $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, " .
+  $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, limshost, " .
             "admin_email, admin_pw, " .
             "secure_user, secure_pw " .
             "FROM metadata " .
@@ -468,6 +486,7 @@ function login_info()
         $new_dbuser,
         $new_dbpasswd,
         $new_dbhost,
+        $new_limshost,
         $admin_email,
         $admin_pw,
         $new_secureuser,
@@ -521,7 +540,7 @@ Investigator Email:    $admin_email
 Investigator Password: $admin_pw
 
 LIMS Setup
-URL:                http://$new_dbhost/$new_dbname
+URL:                http://$new_limshost/$new_dbname
 DB User:            $new_dbuser
 DB Pw:              $new_dbpasswd
 DB Name:            $new_dbname
@@ -581,7 +600,7 @@ function email_login_info()
     return;
   }
 
-  $query  = "SELECT admin_fname, admin_lname, dbname, dbhost, " .
+  $query  = "SELECT admin_fname, admin_lname, dbname, dbhost, limshost, " .
             "admin_email AS email, admin_pw, " .
             "secure_user, secure_pw " .
             "FROM metadata " .
@@ -593,6 +612,7 @@ function email_login_info()
         $lname,
         $new_dbname,
         $new_dbhost,
+        $new_limshost,
         $email,
         $admin_pw,
         $new_secureuser,
@@ -612,7 +632,7 @@ Investigator Email:    $email
 Investigator Password: $admin_pw
 
 LIMS Setup
-URL:                http://$new_dbhost/$new_dbname
+URL:                http://$new_limshost/$new_dbname
 TEXT;
 
   // Mail the user
