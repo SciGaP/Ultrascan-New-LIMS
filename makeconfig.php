@@ -88,7 +88,7 @@ $text = <<<TEXT
 \$globaldbuser       = 'gfac';  # the name of the MySQL user
 \$globaldbpasswd     = 'backend';  # the password for the MySQL user
 \$globaldbname       = 'gfac';  # the name of the database
-\$globaldbhost       = 'ultrascan.uthscsa.edu'; # the host on which MySQL runs, generally localhost
+\$globaldbhost       = 'uslims3.uthscsa.edu'; # the host on which MySQL runs, generally localhost
 
 \$ipaddr             = '129.111.140.167'; # the external IP address of the host machine
 \$udpport            = 12233; # the port to send udp messages to

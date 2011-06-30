@@ -231,7 +231,7 @@ function do_step2()
 # A script to create the $institution LIMS
 
 DIR=\$(pwd)
-htmldir="/srv/www/htdocs/uslims/uslims3"
+htmldir="/srv/www/htdocs/uslims3"
 
 echo "Use the us3 password here";
 svn co svn://us3@bcf.uthscsa.edu/us3_lims/trunk \$htmldir/$new_dbname
@@ -274,7 +274,7 @@ TEXT;
     <tr><th>Global DB User:</th><td>gfac</td></tr>
     <tr><th>Global DB password:</th><td>backend</td></tr>
     <tr><th>Global DB name:</th><td>gfac</td></tr>
-    <tr><th>Global DB host:</th><td>ultrascan.uthscsa.edu</td></tr>
+    <tr><th>Global DB host:</th><td>uslims3.uthscsa.edu</td></tr>
   </table>
 
   <p>The database instance has been created.</p>

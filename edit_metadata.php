@@ -555,7 +555,7 @@ TEXT;
 # A script to create the $institution LIMS
 
 DIR=\$(pwd)
-htmldir="/srv/www/htdocs"
+htmldir="/srv/www/htdocs\uslims3"
 
 echo "Use the us3 password here";
 svn co svn://us3@bcf.uthscsa.edu/us3_lims/trunk \$htmldir/$new_dbname

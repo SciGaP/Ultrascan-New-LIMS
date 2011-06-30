@@ -99,7 +99,7 @@ function do_create()
   $dbuser   = $dbname . '_user';
   $dbname   = "uslims3_$dbname";
   $dbpasswd = makeRandomPassword();
-  $dbhost   = 'ultrascan.uthscsa.edu';
+  $dbhost   = 'uslims3.uthscsa.edu';
   $limshost = 'uslims3.uthscsa.edu';
 
   if ( empty( $message ) )
