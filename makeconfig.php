@@ -90,7 +90,7 @@ $text = <<<TEXT
 \$globaldbname       = 'gfac';  # the name of the database
 \$globaldbhost       = 'uslims3.uthscsa.edu'; # the host on which MySQL runs, generally localhost
 
-\$ipaddr             = '129.111.140.167'; # the external IP address of the host machine
+\$ipaddr             = '129.111.140.156'; # the external IP address of the host machine
 \$udpport            = 12233; # the port to send udp messages to
 
 \$top_image          = '#';  # name of the logo to use
