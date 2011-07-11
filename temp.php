@@ -27,8 +27,7 @@ include 'lib/utility.php';
 
 // Start displaying page
 $page_title = "Create DB Instance";
-include 'top.php';
-include 'links.php';
+include 'header.php';
 ?>
 <!-- Begin page content -->
 <div id='content'>
@@ -54,7 +53,7 @@ include 'links.php';
 </div>
 
 <?php
-include 'bottom.php';
+include 'footer.php';
 exit();
 
 function do_step1()

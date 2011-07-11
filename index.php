@@ -11,8 +11,7 @@ include 'config.php';
 
 $page_title = "Welcome!";
 $css = 'css/index.css';
-include 'top.php';
-include 'links.php';
+include 'header.php';
 ?>
 <div id='content'>
 
@@ -68,5 +67,5 @@ Facility Director</p>
 </div>
 
 <?php
-include 'bottom.php';
+include 'footer.php';
 ?>

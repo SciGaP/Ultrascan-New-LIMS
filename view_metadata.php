@@ -27,8 +27,7 @@ include 'db.php';
 // Start displaying page
 $page_title = 'View New LIMS Requests';
 $js  = 'js/export.js,js/sorttable.js';
-include 'top.php';
-include 'links.php';
+include 'header.php';
 
 ?>
 <!-- Begin page content -->
@@ -49,7 +48,7 @@ $_SESSION['print_text']  = $table;
 </div>
 
 <?php
-include 'bottom.php';
+include 'footer.php';
 exit();
 
 // Function to display a table of all records

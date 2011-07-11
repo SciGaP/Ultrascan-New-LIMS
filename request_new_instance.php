@@ -13,8 +13,7 @@ include 'db.php';
 // Start displaying page
 $page_title = 'Request a New LIMS Instance';
 //$js = 'js/request_new_instance.js';
-include 'top.php';
-include 'links.php';
+include 'header.php';
 include 'lib/utility.php';
 
 // Let's keep track of these fields
@@ -63,7 +62,7 @@ else                  // No, just display the captcha
 </div>
 
 <?php
-include 'bottom.php';
+include 'footer.php';
 exit();
 
 // Function to create the new record

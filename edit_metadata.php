@@ -74,8 +74,7 @@ if ( isset( $_POST['create'] ) )
 // Start displaying page
 $page_title = 'Process LIMS Instance Requests';
 $js = 'js/edit_metadata.js';
-include 'top.php';
-include 'links.php';
+include 'header.php';
 include 'lib/selectboxes.php';
 
 ?>
@@ -111,7 +110,7 @@ else
 </div>
 
 <?php
-include 'bottom.php';
+include 'footer.php';
 exit();
 
 // Function to update the current record
