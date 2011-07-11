@@ -14,29 +14,15 @@ echo<<<HTML
 
 HTML;
 
-  // level 1 = privileged user
+  // level 5 = super admin ( developer )
   if ( isset($_SESSION['userlevel']) &&
-             $_SESSION['userlevel'] == 1 )
+             $_SESSION['userlevel'] == 5 )
   {
     echo <<<HTML
-
-HTML;
-  }
-
-  // userlevel 2 = Data analyst
-  if ( isset($_SESSION['userlevel']) &&
-             $_SESSION['userlevel'] == 2 )
-  {
-    echo <<<HTML
-
-HTML;
-  }
-
-  // userlevel 3 = superuser
-  if ( isset($_SESSION['userlevel']) &&
-             $_SESSION['userlevel'] == 3 )
-  {
-    echo <<<HTML
+      <li class='section'><a href='http://$org_site/mysql_admin.php'>MySQL</a></li>
+      <li><a href="request_new_instance.php">Request Instance</a></li>
+      <li class='section'><a href="view_metadata.php">View Requests</a></li>
+      <li><a href='http://$org_site/edit_users.php'>Edit User Info</a></li>
       <li><a href='http://$org_site/view_users.php'>View User Info</a></li>
       <li class='section'><a href='http://$org_site/view_all.php'>View All Users</a></li>
 
@@ -48,6 +34,8 @@ HTML;
              $_SESSION['userlevel'] == 4 )
   {
     echo <<<HTML
+      <li><a href="request_new_instance.php">Request Instance</a></li>
+      <li class='section'><a href="view_metadata.php">View Requests</a></li>
       <li><a href='http://$org_site/edit_users.php'>Edit User Info</a></li>
       <li><a href='http://$org_site/view_users.php'>View User Info</a></li>
       <li class='section'><a href='http://$org_site/view_all.php'>View All Users</a></li>
@@ -55,15 +43,24 @@ HTML;
 HTML;
   }
 
-  // level 5 = super admin ( developer )
+  // userlevel 3 = superuser
   if ( isset($_SESSION['userlevel']) &&
-             $_SESSION['userlevel'] == 5 )
+             $_SESSION['userlevel'] == 3 )
   {
     echo <<<HTML
-      <li><a href='http://$org_site/mysql_admin.php'>MySQL</a></li>
-      <li><a href='http://$org_site/edit_users.php'>Edit User Info</a></li>
+      <li class='section'><a href="request_new_instance.php">Request Instance</a></li>
       <li><a href='http://$org_site/view_users.php'>View User Info</a></li>
       <li class='section'><a href='http://$org_site/view_all.php'>View All Users</a></li>
+
+HTML;
+  }
+
+  // all others
+  if ( isset($_SESSION['userlevel']) &&
+             $_SESSION['userlevel'] < 3 )
+  {
+    echo <<<HTML
+      <li class='section'><a href="request_new_instance.php">Request Instance</a></li>
 
 HTML;
   }
@@ -82,6 +79,7 @@ HTML;
   else
   {
       echo <<<HTML
+      <li class='section'><a href="request_new_instance.php">Request Instance</a></li>
       <li><a href='https://$org_site/login.php'>Login</a></li>
 
 HTML;

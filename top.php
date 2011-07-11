@@ -5,7 +5,6 @@
  */
 
 include 'config.php';
-include 'global_menu.php';
 
 if (!isset($page_title)) $page_title = '';
 
@@ -76,7 +75,6 @@ echo<<<HTML
     UltraScan III</span>
   <span style='font-size:18px;font-weight:bold;color:white;'>
     New LIMS Instance Setup</span>
-    $global_menu
 </div>
 
 <!-- Begin page content -->

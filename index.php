@@ -18,17 +18,10 @@ include 'links.php';
 
   <h1 class="title"><?php echo $org_name; ?></h1>
 
-  <div class="imageright">
-    <table cellpadding="0" cellspacing="0">
-    <tr><td><img src="#" alt="A photo" 
-            width="0" height="0"/></td></tr>
-    <tr><td class='caption'>A caption</td></tr>
-    </table>
-  </div>
   <h3><em>This is where to request a new instance of LIMS3</em></h3>
 
   <p>Please enter a request for a new LIMS instance by clicking on the &ldquo;Request
-     New Instance,&rdquo; above.</p>
+     Instance,&rdquo; a button to the left.</p>
 
 <p> Funding for this facility is provided through multiple sources:</p>
 
