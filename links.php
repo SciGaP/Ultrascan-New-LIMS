@@ -104,7 +104,4 @@ HTML;
 
 ?>
 
-  <!-- A spacer -->
-  <div style='height:20em;'></div>
-
 </div>
