@@ -65,18 +65,6 @@ Texas Advanced Computing Center supported by NSF Teragrid Grant<br/>
 Associate Professor<br/>
 Facility Director</p>
 
-<table cellspacing='0px' cellpadding='0px' class='imagelinks'>
-  <tr><td><img src='images/teragrid.png'></td>
-      <td><img src='images/TACC.gif'></td></tr>
-  <tr><td><a href='http://www.teragrid.org/'>Teragrid</a></td>
-      <td><a href='http://www.tacc.utexas.edu'>
-             Texas Advanced<br />Computing Center</a></td></tr>
-  <tr><td colspan='2' style='padding-top:2em;'><img src='images/uthscsa.gif'></td></tr>
-  <tr><td colspan='2'><a href='http://www.uthscsa.edu'>
-              The University of Texas<br />Health Science Center</a></td></tr>
-</table>
-
-
 </div>
 
 <?php

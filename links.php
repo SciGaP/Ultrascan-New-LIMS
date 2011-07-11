@@ -10,7 +10,7 @@
 echo<<<HTML
 <div id='sidebar'>
 
-  <ul><li class='section'><a href='http://$org_site/index.php'>Welcome!</a></li>
+  <a href='http://$org_site/index.php'>Welcome!</a>
 
 HTML;
 
@@ -19,12 +19,15 @@ HTML;
              $_SESSION['userlevel'] == 5 )
   {
     echo <<<HTML
-      <li class='section'><a href='http://$org_site/mysql_admin.php'>MySQL</a></li>
-      <li><a href="request_new_instance.php">Request Instance</a></li>
-      <li class='section'><a href="view_metadata.php">View Requests</a></li>
-      <li><a href='http://$org_site/edit_users.php'>Edit User Info</a></li>
-      <li><a href='http://$org_site/view_users.php'>View User Info</a></li>
-      <li class='section'><a href='http://$org_site/view_all.php'>View All Users</a></li>
+      <h4>Admin</h4>
+      <a href='http://$org_site/mysql_admin.php'>MySQL</a>
+      <a href='http://$org_site/edit_users.php'>Edit User Info</a>
+      <a href='http://$org_site/view_users.php'>View User Info</a>
+      <a href='http://$org_site/view_all.php'>View All Users</a>
+
+      <h4>Instances</h4>
+      <a href="request_new_instance.php">Request Instance</a>
+      <a href="view_metadata.php">View Requests</a>
 
 HTML;
   }
@@ -34,11 +37,14 @@ HTML;
              $_SESSION['userlevel'] == 4 )
   {
     echo <<<HTML
-      <li><a href="request_new_instance.php">Request Instance</a></li>
-      <li class='section'><a href="view_metadata.php">View Requests</a></li>
-      <li><a href='http://$org_site/edit_users.php'>Edit User Info</a></li>
-      <li><a href='http://$org_site/view_users.php'>View User Info</a></li>
-      <li class='section'><a href='http://$org_site/view_all.php'>View All Users</a></li>
+      <h4>Admin</h4>
+      <a href='http://$org_site/edit_users.php'>Edit User Info</a>
+      <a href='http://$org_site/view_users.php'>View User Info</a>
+      <a href='http://$org_site/view_all.php'>View All Users</a>
+
+      <h4>Instances</h4>
+      <a href="request_new_instance.php">Request Instance</a>
+      <a href="view_metadata.php">View Requests</a>
 
 HTML;
   }
@@ -48,9 +54,12 @@ HTML;
              $_SESSION['userlevel'] == 3 )
   {
     echo <<<HTML
-      <li class='section'><a href="request_new_instance.php">Request Instance</a></li>
-      <li><a href='http://$org_site/view_users.php'>View User Info</a></li>
-      <li class='section'><a href='http://$org_site/view_all.php'>View All Users</a></li>
+      <h4>Admin</h4>
+      <a href='http://$org_site/view_users.php'>View User Info</a>
+      <a href='http://$org_site/view_all.php'>View All Users</a>
+
+      <h4>Instances</h4>
+      <a href="request_new_instance.php">Request Instance</a>
 
 HTML;
   }
@@ -60,7 +69,8 @@ HTML;
              $_SESSION['userlevel'] < 3 )
   {
     echo <<<HTML
-      <li class='section'><a href="request_new_instance.php">Request Instance</a></li>
+      <h4>Instances</h4>
+      <a href="request_new_instance.php">Request Instance</a>
 
 HTML;
   }
@@ -69,8 +79,12 @@ HTML;
   if ( isset($_SESSION['id']) )
   {
     echo <<<HTML
-      <li><a href='http://$org_site/profile.php?edit=12'>Change My Info</a></li>
-      <li><a href='http://$org_site/logout.php'>Logout</a></li>
+      <h4>General</h4>
+      <a href='http://$org_site/profile.php?edit=12'>Change My Info</a>
+      <a href="partners.php">Partners</a>
+      <a href="contacts.php">Contacts</a>
+      <a href="mailto:dzollars@gmail.com">Webmaster</a>
+      <a href='http://$org_site/logout.php'>Logout</a>
 
 HTML;
   }
@@ -79,15 +93,16 @@ HTML;
   else
   {
       echo <<<HTML
-      <li class='section'><a href="request_new_instance.php">Request Instance</a></li>
-      <li><a href='https://$org_site/login.php'>Login</a></li>
+      <a href="request_new_instance.php">Request Instance</a>
+      <a href="partners.php">Partners</a>
+      <a href="contacts.php">Contacts</a>
+      <a href="mailto:dzollars@gmail.com">Webmaster</a>
+      <a href='https://$org_site/login.php'>Login</a>
 
 HTML;
   }
 
-  // Now finish out the list
 ?>
-  </ul>
 
   <!-- A spacer -->
   <div style='height:20em;'></div>
