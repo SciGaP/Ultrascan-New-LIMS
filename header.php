@@ -48,20 +48,25 @@ Released      : 8/1/2010
 <!-- begin header -->
 <div id="header" style='text-align:left;'> 
    <table class='noborder'>
-  <tr>
-    <td>
-       <img src='images/USLIMS3-banner.png' alt='UltraScan banner' />
-    </td>
-    <td valign='middle'>
-      <form method="post" action="search.php">
-        <div>
-        <input type="submit" value="Search" />
-        <input type="text" name="words" size="30" />
-        </div>
-      </form>
-    </td>
-  </tr>
-  </table>
+   <tr><td><img src='images/USLIMS3-banner.png' alt='USLims 3 banner' /></td>
+       <td style='vertical-align:middle;width:400px;'>
+
+       <div id="cse-search-form">Loading</div>
+       <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+       <script type="text/javascript">
+         google.load('search', '1', {language : 'en', style : google.loader.themes.MINIMALIST});
+         google.setOnLoadCallback(function() {
+           var customSearchControl = new google.search.CustomSearchControl('007201445830912588415:jg05a0rix7y');
+           customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+           var options = new google.search.DrawOptions();
+           options.enableSearchboxOnly("http://$org_site/search.php");
+           customSearchControl.draw('cse-search-form', options);
+         }, true);
+       </script>
+
+       </td>
+   </tr>
+   </table>
 
 HTML;
 
