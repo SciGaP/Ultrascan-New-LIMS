@@ -559,8 +559,8 @@ htmldir="/srv/www/htdocs\uslims3"
 echo "Use the us3 password here";
 svn co svn://us3@bcf.uthscsa.edu/us3_lims/trunk \$htmldir/$new_dbname
 mkdir \$htmldir/$new_dbname/data
-sudo chgrp apache \$htmldir/$new_dbname/data
-sudo chmod g+w \$htmldir/$new_dbname/data
+#sudo chgrp apache \$htmldir/$new_dbname/data
+chmod g+w \$htmldir/$new_dbname/data
 
 #Now make the config.php file
 php $makeconfigfile $new_dbname
