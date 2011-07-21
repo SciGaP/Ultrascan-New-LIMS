@@ -667,10 +667,8 @@ TEXT;
 
   mail($email, $subject, $message, $headers);
 
-  $_SESSION['message'] = "The email has been sent.";
-
-  header("Location: $_SERVER[PHP_SELF]?ID=$metadataID");
-  exit();
+  echo "<p>The email has been sent.</p>\n" .
+       "<p><a href='{$_SERVER['PHP_SELF']}?ID=$metadataID'>Return to this record.</a></p>\n";
 }
 
 ?>

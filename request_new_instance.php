@@ -126,6 +126,7 @@ function do_create()
     mysql_query($query)
       or die("Query failed : $query<br />\n" . mysql_error());
 
+    email_admin( $institution );
     show_record();
   }
 
@@ -280,6 +281,43 @@ echo<<<HTML
   </div>
 
 HTML;
+}
+
+function email_admin( $institution )
+{
+  // Mail the admin that a new instance has been requested
+
+  global $org_name, $admin, $admin_email;
+
+  $email = 'us3newinstance@biochem.uthscsa.edu';
+
+  $now = time();
+  $subject = "A new UltraScan III instance has been requested - $now";
+
+  $message = "Dear $admin,
+  $institution has requested a new UltraScan III instance. Please go to
+  http://uslims3.uthscsa.edu/uslims3_newlims and set it up.
+
+  Please save this message for your reference.
+  Thanks!
+  The $org_name Admins.
+
+  This is an automated email, do not reply!";
+
+  $headers = "From: $org_name Admin<$admin_email>"     . "\n";
+
+  // Set the reply address
+  $headers .= "Reply-To: $org_name<$admin_email>"      . "\n";
+  $headers .= "Return-Path: $org_name<$admin_email>"   . "\n";
+
+  // Try to avoid spam filters
+  $headers .= "Message-ID: <" . $now . "info@" . $_SERVER['SERVER_NAME'] . ">\n";
+  $headers .= "X-Mailer: PHP v" . phpversion()         . "\n";
+  $headers .= "MIME-Version: 1.0"                      . "\n";
+  $headers .= "Content-Transfer-Encoding: 8bit"        . "\n";
+
+  mail($email, $subject, $message, $headers);
+
 }
 
 ?>

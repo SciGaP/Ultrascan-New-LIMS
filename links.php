@@ -8,7 +8,7 @@
  */
 
 echo<<<HTML
-<div id='sidebar'>
+<div id='sidebar' style='padding-bottom:30em;'>
 
   <a href='http://$org_site/index.php'>Welcome!</a>
 
