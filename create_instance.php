@@ -36,10 +36,7 @@ include 'header.php';
   <!-- Place page content here -->
 
 <?php
-  if ( isset( $_POST['step_3'] ) )
-    do_step3();
-
-  else if ( isset( $_POST['step_2'] ) )
+  if ( isset( $_POST['step_2'] ) )
     do_step2();
 
   else if ( isset( $_SESSION['metadataID'] ) )
@@ -279,6 +276,9 @@ TEXT;
   <p>The database instance has been created.</p>
 
 HTML;
+
+  // Mail the administrator automatically
+  email_login_info( $metadataID );
 }
 
 function setup_DB( $metadataID )

@@ -71,6 +71,28 @@ if ( isset( $_POST['create'] ) )
   exit();
 }
 
+if ( isset($_POST['email_login']) )
+{
+  // Get the record we need to edit
+  if ( isset( $_POST['metadataID'] ) )
+  {
+    $metadataID = $_POST['metadataID'];
+    email_login_info( $metadataID );
+    $redirect = "?ID=$metadataID";
+    $_SESSION['message'] = 'The email has been sent';
+  }
+
+  else
+  {
+    // How did we get here?
+    $_SESSION['message'] = 'There was a problem with the email request.';
+    $redirect = "";
+  }
+
+  header("Location: {$_SERVER['PHP_SELF']}$redirect");
+  exit();
+}
+
 // Start displaying page
 $page_title = 'Process LIMS Instance Requests';
 $js = 'js/edit_metadata.js';
@@ -99,9 +121,6 @@ if ( isset($_POST['edit']) || isset($_GET['edit']) )
 
 else if ( isset($_POST['login_info']) )
   login_info();
-
-else if ( isset($_POST['email_login']) )
-  email_login_info();
 
 else
   display_record();
@@ -583,92 +602,6 @@ TEXT;
   <pre>$setupLIMS</pre>
 
 HTML;
-}
-
-// Function to email login information to the administrator
-function email_login_info()
-{
-  // Get the record we need to edit
-  if ( isset( $_POST['metadataID'] ) )
-    $metadataID = $_POST['metadataID'];
-
-  else
-  {
-    // How did we get here?
-    echo "<p>There was a problem with the email request.</p>\n";
-    return;
-  }
-
-  $query  = "SELECT admin_fname, admin_lname, dbname, dbhost, limshost, " .
-            "admin_email AS email, admin_pw, " .
-            "secure_user, secure_pw " .
-            "FROM metadata " .
-            "WHERE metadataID = $metadataID ";
-  $result = mysql_query($query) 
-            or die("Query failed : $query<br />\n" . mysql_error());
-
-  list( $fname,
-        $lname,
-        $new_dbname,
-        $new_dbhost,
-        $new_limshost,
-        $email,
-        $admin_pw,
-        $new_secureuser,
-        $new_securepw )   = mysql_fetch_array( $result );
-
-  $hints = <<<TEXT
-Database Setup Information
-
-DB Connection Name: $new_secureuser
-DB Password:        $new_securepw
-Database Name:      $new_dbname
-Host Address:       $new_dbhost
-
-
-Admin Investigator Setup Information
-Investigator Email:    $email
-Investigator Password: $admin_pw
-
-LIMS Setup
-URL:                http://$new_limshost/$new_dbname
-TEXT;
-
-  // Mail the user
-
-  global $org_name, $admin_email;
-
-  $subject = "Your UltraScan database account";
-
-  $message = "Dear $fname $lname,
-  Your UltraScan database has been set up. Information for accessing
-  it is as follows:
-      
-  $hints
-
-  Please save this message for your reference.
-  Thanks!
-  The $org_name Admins.
-
-  This is an automated email, do not reply!";
-
-  $now = time();
-  $headers = "From: $org_name Admin<$admin_email>"     . "\n";
-
-  // Set the reply address
-  $headers .= "Reply-To: $org_name<$admin_email>"      . "\n";
-  $headers .= "Return-Path: $org_name<$admin_email>"   . "\n";
-
-  // Try to avoid spam filters
-  $headers .= "Message-ID: <" . $now . "info@" . $_SERVER['SERVER_NAME'] . ">\n";
-  $headers .= "X-Mailer: PHP v" . phpversion()         . "\n";
-  $headers .= "MIME-Version: 1.0"                      . "\n";
-  $headers .= "Content-Transfer-Encoding: 8bit"        . "\n";
-
-  mail($email, $subject, $message, $headers);
-
-  echo "<p>The email has been sent.</p>\n" .
-       "<p><a href='{$_SERVER['PHP_SELF']}?ID=$metadataID'>Return to this record.</a></p>\n";
 }
 
 ?>
