@@ -322,7 +322,7 @@ function setup_DB( $metadataID )
             "password = '$admin_pw_hash', " .
             "organization = '$institution', " .
             "activated = true, " .
-            "userlevel = 4 ";
+            "userlevel = 3 ";
   mysql_query($query) 
         or die("Query failed : $query<br />\n" . mysql_error());
   $admin_id = mysql_insert_id();
@@ -412,6 +412,9 @@ function setup_DB( $metadataID )
   mysql_query($query) 
         or die("Query failed : $query<br />\n" . mysql_error());
 
+  // Add the us3 admins to this database
+  add_admins( $link2 );
+
   // Update status in metadata DB
   global $link, $dbhost, $dbusername, $dbpasswd, $dbname;
   $link = mysql_connect( $dbhost, $dbusername, $dbpasswd ) 
@@ -426,9 +429,116 @@ function setup_DB( $metadataID )
 
 }
 
-// Function to display an error message
-function error( $msg )
+// Function to add the us3 admins to the current database
+function add_admins( $link2 )
 {
-  echo "<p>$msg</p>\n";
+  // Start queries
+  $email_list = array();
+  $query  = "SELECT email FROM people ";
+  $result = mysql_query( $query, $link2 );
+  while ( list( $email ) = mysql_fetch_array( $result ) )
+    $email_list[] = $email;
+
+  // Guard against possibility that one of us is the one requesting
+  if ( in_array( 'demeler@biochem.uthscsa.edu', $email_list ) )
+  {
+    $query  = "UPDATE people SET ";
+    $where  = "WHERE email   = 'demeler@biochem.uthscsa.edu' ";
+  }
+
+  else
+  {
+    $guid   = uuid();
+    $query  = "INSERT INTO people SET " .
+              "personGUID    = '$guid', " .
+              "email = 'demeler@biochem.uthscsa.edu', ";
+    $where  = "";
+  }
+
+  $query   .= "fname         = 'Borries', " .
+              "lname         = 'Demeler', " .
+              "address       = '7703 Floyd Curl Drive', " .
+              "city          = 'San Antonio', " .
+              "state         = 'TX', " .
+              "zip           = '78229', " .
+              "country       = 'US', " .
+              "phone         = '(210) 567-6592', " .
+              "password      = MD5('us3'), " .
+              "organization  = 'UTHSCSA', " .
+              "username      = 'us3demeler', " .
+              "activated     = 1, " .
+              "userlevel     = 4 " .
+              $where ;
+  $result   = mysql_query( $query, $link2 );
+  if ( ! $result )
+    echo "Query failed : $query\n" . mysql_error();
+
+  if ( in_array( 'dzollars@gmail.com', $email_list ) )
+  {
+    $query  = "UPDATE people SET ";
+    $where  = "WHERE email   = 'dzollars@gmail.com' ";
+  }
+
+  else
+  {
+    $guid   = uuid();
+    $query  = "INSERT INTO people SET " .
+              "personGUID    = '$guid', " .
+              "email = 'dzollars@gmail.com', ";
+    $where  = "";
+  }
+
+  $query   .= "fname         = 'Dan', " .
+              "lname         = 'Zollars', " .
+              "address       = '7703 Floyd Curl Drive', " .
+              "city          = 'San Antonio', " .
+              "state         = 'TX', " .
+              "zip           = '78229', " .
+              "country       = 'US', " .
+              "phone         = '(210) 567-6049', " .
+              "password      = MD5('us3'), " .
+              "organization  = 'UTHSCSA', " .
+              "username      = 'us3zollars', " .
+              "activated     = 1, " .
+              "userlevel     = 5 " .
+              $where ;
+  $result = mysql_query( $query, $link2 );
+  if ( ! $result )
+    echo "Query failed : $query\n" . mysql_error();
+
+  if ( in_array( 'gegorbet@gmail.com', $email_list ) )
+  {
+    $query  = "UPDATE people SET ";
+    $where  = "WHERE email   = 'gegorbet@gmail.com' ";
+  }
+
+  else
+  {
+    $guid   = uuid();
+    $query  = "INSERT INTO people SET " .
+              "personGUID    = '$guid', " .
+              "email = 'gegorbet@gmail.com', ";
+    $where  = "";
+  }
+
+  $query   .= "fname         = 'Gary', " .
+              "lname         = 'Gorbet', " .
+              "address       = '7703 Floyd Curl Drive', " .
+              "city          = 'San Antonio', " .
+              "state         = 'TX', " .
+              "zip           = '78229', " .
+              "country       = 'US', " .
+              "phone         = '(210) 567-6049', " .
+              "password      = MD5('us3'), " .
+              "organization  = 'UTHSCSA', " .
+              "username      = 'us3gorbet', " .
+              "activated     = 1, " .
+              "userlevel     = 4 " .
+              $where ;
+  $result = mysql_query( $query, $link2 );
+  if ( ! $result )
+    echo "Query failed : $query\n" . mysql_error();
+
 }
+
 ?>

@@ -98,6 +98,7 @@ $text = <<<TEXT
 
 \$full_path          = '$dest_path$new_dbname/';  # Location of the system code
 \$data_dir           = '$dest_path$new_dbname/data/'; # Full path
+\$submit_dir         = '/srv/www/htdocs/uslims3/uslims3_data/'; # Full path
 \$disclaimer_file    = ''; # the name of a text file with disclaimer info
 
 // Dates
@@ -111,6 +112,9 @@ date_default_timezone_set( 'America/Chicago' );
 // ensure a trailing slash
 if ( \$data_dir[strlen(\$data_dir) - 1] != '/' )
   \$data_dir .= '/';
+
+if ( \$submit_dir[strlen(\$submit_dir) - 1] != '/' )
+  \$submit_dir .= '/';
 
 /* Define our file paths */
 if ( ! defined('HOME_DIR') ) 
