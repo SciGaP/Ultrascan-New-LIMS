@@ -463,7 +463,7 @@ function add_admins( $link2 )
               "zip           = '78229', " .
               "country       = 'US', " .
               "phone         = '(210) 567-6592', " .
-              "password      = MD5('us3'), " .
+              "password      = MD5('TSv3dberg'), " .
               "organization  = 'UTHSCSA', " .
               "username      = 'us3demeler', " .
               "activated     = 1, " .
@@ -496,7 +496,7 @@ function add_admins( $link2 )
               "zip           = '78229', " .
               "country       = 'US', " .
               "phone         = '(210) 567-6049', " .
-              "password      = MD5('us3'), " .
+              "password      = MD5('TSv3dberg'), " .
               "organization  = 'UTHSCSA', " .
               "username      = 'us3zollars', " .
               "activated     = 1, " .
@@ -529,7 +529,7 @@ function add_admins( $link2 )
               "zip           = '78229', " .
               "country       = 'US', " .
               "phone         = '(210) 567-6049', " .
-              "password      = MD5('us3'), " .
+              "password      = MD5('TSv3dberg'), " .
               "organization  = 'UTHSCSA', " .
               "username      = 'us3gorbet', " .
               "activated     = 1, " .

@@ -36,6 +36,7 @@ if ( $_SERVER['argc'] != 2 )
 $new_dbname = $_SERVER['argv'][1];
 
 $query  = "SELECT institution, dbuser, dbpasswd, dbhost, " .
+          "secure_user, secure_pw, " .
           "admin_fname, admin_lname, admin_email, admin_pw " .
           "FROM metadata " .
           "WHERE dbname = '$new_dbname' ";
@@ -53,6 +54,8 @@ list( $institution,
       $new_dbuser,
       $new_dbpasswd,
       $new_dbhost,
+      $secure_user,
+      $secure_pw,
       $admin_fname,
       $admin_lname,
       $admin_email,
@@ -84,11 +87,24 @@ $text = <<<TEXT
 \$dbname             = '$new_dbname';  # the name of the database
 \$dbhost             = '$new_dbhost'; # the host on which MySQL runs, generally localhost
 
+// Secure user credentials
+\$secure_user        = '$secure_user'; # the secure username that UltraScan3 uses
+\$secure_pw          = '$secure_pw';   # the secure password that UltraScan3 uses
+
 // Global DB
 \$globaldbuser       = 'gfac';  # the name of the MySQL user
 \$globaldbpasswd     = 'backend';  # the password for the MySQL user
 \$globaldbname       = 'gfac';  # the name of the database
 \$globaldbhost       = 'uslims3.uthscsa.edu'; # the host on which MySQL runs, generally localhost
+
+// Admin function
+\$v1_host            = "";
+\$v1_user            = "";
+\$v1_pass            = "";
+
+\$v2_host            = "";
+\$v2_user            = "";
+\$v2_pass            = "";
 
 \$ipaddr             = '129.111.140.156'; # the external IP address of the host machine
 \$udpport            = 12233; # the port to send udp messages to
@@ -99,6 +115,7 @@ $text = <<<TEXT
 \$full_path          = '$dest_path$new_dbname/';  # Location of the system code
 \$data_dir           = '$dest_path$new_dbname/data/'; # Full path
 \$submit_dir         = '/srv/www/htdocs/uslims3/uslims3_data/'; # Full path
+\$class_dir          = '/srv/www/htdocs/common/class/'; #Full path
 \$disclaimer_file    = ''; # the name of a text file with disclaimer info
 
 // Dates
@@ -115,6 +132,9 @@ if ( \$data_dir[strlen(\$data_dir) - 1] != '/' )
 
 if ( \$submit_dir[strlen(\$submit_dir) - 1] != '/' )
   \$submit_dir .= '/';
+
+if ( \$class_dir[strlen(\$class_dir) - 1] != '/' )
+  \$class_dir .= '/';
 
 /* Define our file paths */
 if ( ! defined('HOME_DIR') ) 
