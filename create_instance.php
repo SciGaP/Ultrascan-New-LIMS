@@ -59,6 +59,7 @@ function do_step1()
   $metadataID = $_SESSION['metadataID'];
   unset( $_SESSION['metadataID'] );
 
+echo "MetadataID = $metadataID<br />";
   // Double check if this has been done before
   $query  = "SELECT status FROM metadata " .
             "WHERE metadataID = $metadataID ";
@@ -78,6 +79,7 @@ function do_step1()
     error( "Error: this database has already been set up." );
     return;
   }
+echo "Metadata status = $status<br />";
 
   $query  = "SELECT institution, inst_abbrev, dbname, dbuser, dbpasswd, dbhost, limshost, " .
             "admin_email, admin_pw " .
@@ -230,7 +232,7 @@ DIR=\$(pwd)
 htmldir="/srv/www/htdocs/uslims3"
 
 echo "Use the us3 password here";
-svn co svn://us3@bcf.uthscsa.edu/us3_lims/trunk \$htmldir/$new_dbname
+svn co svn://us3@bcf2.uthscsa.edu/us3_lims/trunk \$htmldir/$new_dbname
 mkdir \$htmldir/$new_dbname/data
 #sudo chgrp apache \$htmldir/$new_dbname/data
 chmod g+w \$htmldir/$new_dbname/data

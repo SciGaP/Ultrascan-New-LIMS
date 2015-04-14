@@ -80,6 +80,12 @@ function do_create()
 
   // Check $inst_abbrev, which needs to be unique
   $inst_abbrev = preg_replace( "/ /", "_", $inst_abbrev );
+  // Limit characters to alphanumerics and underscore
+  $inst_abbre1 = $inst_abbrev;
+  $inst_abbrev = preg_replace( "/[^A-Za-z0-9_]/", "_", $inst_abbrev, -1, $rcount );
+  if ( $rcount > 0 )
+    $message .= "--abbreviation $inst_abbre1 changed to $inst_abbrev"
+              . " (only alphanumeric and underscore allowed).<br/>";
   $query  = "SELECT COUNT(*) FROM metadata " .
             "WHERE inst_abbrev = '$inst_abbrev' ";
   $result =  mysql_query($query)
